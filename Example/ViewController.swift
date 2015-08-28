@@ -21,17 +21,37 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func openWebSite(sender: AnyObject) {
+    @IBAction func openWebSite1(sender: AnyObject) {
         
         let url = NSURL(string: "https://apple.com")!
         let webView = WebViewController(content: .ExternalURL(url: url)) { controller in
             controller.dismissViewControllerAnimated(true, completion: nil)
         }
-        presentViewController(webView, animated: true, completion: nil)
+        webView.autoHideToolbar = false
         
         
+//        presentViewController(webView, animated: true, completion: nil)
+        navigationController?.showViewController(webView, sender: self)
+    }
+    
+    @IBAction func openWebSite2(sender: AnyObject) {
         
-//        navigationController?.showViewController(webView, sender: self)
+        let url = NSURL(string: "https://apple.com")!
+        let webView = WebViewController(content: .ExternalURL(url: url)) { controller in
+            controller.dismissViewControllerAnimated(true, completion: nil)
+        }
+        //        presentViewController(webView, animated: true, completion: nil)
+        navigationController?.showViewController(webView, sender: self)
+    }
+    
+    @IBAction func openWebSite3(sender: AnyObject) {
+        
+        let url = NSURL(string: "https://apple.com")!
+        let webView = WebViewController(content: .ExternalURL(url: url)) { controller in
+            controller.dismissViewControllerAnimated(true, completion: nil)
+        }
+        //        presentViewController(webView, animated: true, completion: nil)
+        navigationController?.showViewController(webView, sender: self)
     }
     
 

@@ -26,6 +26,12 @@ public class WebViewController: UIViewController {
     /// show loading toolBar, by default toolBar is only shown for ExternalURL
     public var showToolBar = false
     
+    /// automatically hides/show tool bar on scroll
+    public var autoHideToolbar = true
+    
+    /// will add an hidden button at buttom to restore toolbar on touch
+    public var restoreToolBarOnBottomTouch = true
+    
     /// tintColor will color barButtons and progressBar color
     public var tintColor: UIColor = UIColor.blueColor()
     
@@ -81,7 +87,7 @@ public class WebViewController: UIViewController {
     
     override public func viewDidLoad() {
         super.viewDidLoad()
-        setupUIWithWebView()
+        setupUI()
     }
     
     override public func viewWillAppear(animated: Bool) {
@@ -100,8 +106,8 @@ public class WebViewController: UIViewController {
         }
     }
     
-    override public func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
+    override public func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
         webView.removeObserver(self, forKeyPath: "estimatedProgress")
     }
     
@@ -122,15 +128,16 @@ public class WebViewController: UIViewController {
     private var contentType: ContentType
     private var closeHandler: ((controller: WebViewController) -> Void)?
     private var webViewController: UIViewController!
-    private var progressView: UIProgressView!
-    private var toolBar: UIToolbar!
     private var toolBarBottomConstraint: NSLayoutConstraint!
     private var startDragPosition: CGFloat?
     private var modalNavigationController: UINavigationController?
-    
     private var barBackButton: UIBarButtonItem!
     private var barForwardButton: UIBarButtonItem!
     private var barReloadButton: UIBarButtonItem!
+    
+    private var progressView: UIProgressView?
+    private var toolBar: UIToolbar?
+    private var hiddenToolBarRestoreButton: UIButton?
     private var cssScript: WKUserScript?
     
 }
@@ -138,13 +145,11 @@ public class WebViewController: UIViewController {
 // MARK: - INIT UI
 private extension WebViewController {
     
-    func setupUIWithWebView() {
+    func setupUI() {
         
         view.tintColor = tintColor
-        
-        // init with navigation controller
+
         webViewController = UIViewController(nibName: nil, bundle: nil)
-        
         if let navigationController = self.navigationController {
             // will show in navigation controller
             webViewController.willMoveToParentViewController(self)
@@ -163,7 +168,22 @@ private extension WebViewController {
             self.modalNavigationController = navigationController
         }
         
-        // init webView
+        setupWebView()
+        
+        if showLoadingProgress {
+            setupProgressView()
+        }
+        
+        if showToolBar {
+            setupToolBar()
+            if restoreToolBarOnBottomTouch && autoHideToolbar {
+                setupHiddenToolBarRestoreButton()
+            }
+        }
+        
+    }
+    
+    func setupWebView() {
         let configuration = WKWebViewConfiguration()
         let controller = WKUserContentController()
         configuration.userContentController = controller
@@ -190,9 +210,10 @@ private extension WebViewController {
         webView.addObserver(self, forKeyPath: "estimatedProgress", options: NSKeyValueObservingOptions.New, context: &webContext)
         webView.navigationDelegate = self
         webView.scrollView.delegate = self
-        
-        // init progressView
-        progressView = UIProgressView(progressViewStyle: .Default)
+    }
+    
+    func setupProgressView() {
+        let progressView = UIProgressView(progressViewStyle: .Default)
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.hidden = true
         progressView.tintColor = self.tintColor
@@ -205,15 +226,17 @@ private extension WebViewController {
         webViewController.view.addConstraint(left)
         webViewController.view.addConstraint(right)
         webViewController.view.addConstraint(vConstraint)
-        
-        // init toolbar
-        toolBar = UIToolbar(frame: CGRectZero)
+        self.progressView = progressView
+    }
+    
+    func setupToolBar() {
+        let toolBar = UIToolbar(frame: CGRectZero)
         toolBar.translatesAutoresizingMaskIntoConstraints = false
         toolBar.hidden = !showToolBar
         webViewController.view.addSubview(toolBar)
         let tLeft = NSLayoutConstraint(item: toolBar, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
         let tRight = NSLayoutConstraint(item: toolBar, attribute: .Right, relatedBy: .Equal, toItem: webViewController.view, attribute: .Right, multiplier: 1.0, constant: 0.0)
-        toolBarBottomConstraint = NSLayoutConstraint(item: toolBar, attribute: .Bottom, relatedBy: .Equal, toItem: webViewController.bottomLayoutGuide, attribute: .Bottom, multiplier: 1.0, constant: 0.0)
+        toolBarBottomConstraint = NSLayoutConstraint(item: toolBar, attribute: .Bottom, relatedBy: .Equal, toItem: webViewController.bottomLayoutGuide, attribute: .Top, multiplier: 1.0, constant: 0.0)
         webViewController.view.addConstraint(tLeft)
         webViewController.view.addConstraint(tRight)
         webViewController.view.addConstraint(toolBarBottomConstraint)
@@ -233,6 +256,30 @@ private extension WebViewController {
         barForwardButton.enabled = false
         
         toolBar.items = [barFixSpaceSmal, barBackButton, barFixSpace, barForwardButton, barFlexSpace, barReloadButton]
+        self.toolBar = toolBar
+    }
+    
+    func setupHiddenToolBarRestoreButton() {
+        let button = UIButton()
+        button.addTarget(self, action: "hiddenToolBarRestoreButtonTouchUpInside:", forControlEvents: .TouchUpInside)
+        button.setTitle("", forState: .Normal)
+        button.setTitle("", forState: .Disabled)
+        button.setTitle("", forState: .Highlighted)
+        button.setTitle("", forState: .Reserved)
+        button.setTitle("", forState: .Selected)
+        button.setTitle("", forState: .Application)
+        button.backgroundColor = UIColor.clearColor()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        webViewController.view.addSubview(button)
+        let left = NSLayoutConstraint(item: button, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
+        let right = NSLayoutConstraint(item: button, attribute: .Right, relatedBy: .Equal, toItem: webViewController.view, attribute: .Right, multiplier: 1.0, constant: 0.0)
+        let bottom = NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: webViewController.bottomLayoutGuide, attribute: .Top, multiplier: 1.0, constant: 0.0)
+        let height = NSLayoutConstraint(item: button, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 20.0)
+        webViewController.view.addConstraint(left)
+        webViewController.view.addConstraint(right)
+        webViewController.view.addConstraint(bottom)
+        webViewController.view.addConstraint(height)
+        hiddenToolBarRestoreButton = button
     }
     
 }
@@ -287,6 +334,10 @@ extension WebViewController {
             webView.goForward()
         }
     }
+    
+    func hiddenToolBarRestoreButtonTouchUpInside(sender: UIButton) {
+        showToolBarAnimated()
+    }
 
 }
 
@@ -298,12 +349,18 @@ public extension WebViewController {
         if context == &webContext {
             if let newValue = change?[NSKeyValueChangeNewKey] as? Float {
                 
-                if showLoadingProgress {
+                if let progressView = self.progressView {
                     progressView.progress = newValue
                     if !progressView.hidden && (newValue >= 1.0 || newValue <= 0.0) {
-                        hideAnimated(progressView)
+                        hideProgressViewAnimated(progressView)
+                        if let toolBar = self.toolBar {
+                            // adjust scrollview inset if loading is finished
+                            let inset = webView.scrollView.scrollIndicatorInsets
+                            webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+                            webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+                        }
                     } else if progressView.hidden {
-                        showAnimated(progressView)
+                        showProgressViewAnimated(progressView)
                     }
                 }
                 
@@ -340,46 +397,37 @@ extension WebViewController: UIScrollViewDelegate {
     
     public func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if let _ = self.startDragPosition {
-            if !toolBar.hidden && showToolBar {
-                showToolBarAnimated()
+            if let toolBar = toolBar {
+                if !toolBar.hidden && autoHideToolbar {
+                    showToolBarAnimated()
+                }
             }
         }
     }
     
     public func scrollViewDidScroll(scrollView: UIScrollView) {
-        if let startDragPosition = self.startDragPosition {
-            let offset = scrollView.contentOffset.y - startDragPosition
-            if offset <= toolBar.bounds.size.height && offset > 0 && !toolBar.hidden {
-                toolBarBottomConstraint.constant = offset
-                
-                // TODO: navigation bar scaling on scroll
-//                if let navigationController = self.navigationController {
-//                    
-//                    let originFrame = navigationController.navigationBar.frame
-//                    
-//                    navigationController.navigationBar.frame = CGRectMake(originFrame.origin.x, originFrame.origin.y, originFrame.size.width, 20)
-//                    
-//                } else if let navigationController = modalNavigationController {
-//                    
-//                    let originFrame = navigationController.navigationBar.frame
-//                    
-//                    navigationController.navigationBar.frame = CGRectMake(originFrame.origin.x, originFrame.origin.y, originFrame.size.width, 20)
-//                    
-//                }
-                
-                
-            } else if !toolBar.hidden && offset > toolBar.bounds.size.height {
-                toolBar.hidden = true
+        if autoHideToolbar {
+            if let startDragPosition = self.startDragPosition, toolBar = self.toolBar {
+                let offset = scrollView.contentOffset.y - startDragPosition
+                if offset <= toolBar.bounds.size.height && offset > 0 && !toolBar.hidden {
+                    toolBarBottomConstraint.constant = offset
+                } else if !toolBar.hidden && offset > toolBar.bounds.size.height {
+                    hideToolBar()
+                }
             }
         }
     }
     
     public func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
-        scrollingDidStop(scrollView)
+        if autoHideToolbar {
+            scrollingDidStop(scrollView)
+        }
     }
     
     public func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
-        scrollingDidStop(scrollView)
+        if autoHideToolbar {
+            scrollingDidStop(scrollView)
+        }
     }
     
 }
@@ -387,7 +435,7 @@ extension WebViewController: UIScrollViewDelegate {
 // MARK: - Helper
 private extension WebViewController {
     
-    func hideAnimated(view :UIView) {
+    func hideProgressViewAnimated(view :UIView) {
         UIView.animateWithDuration(0.25, animations: { _ in
             view.alpha = 0.0
             })
@@ -396,7 +444,7 @@ private extension WebViewController {
             }
     }
     
-    func showAnimated(view :UIView) {
+    func showProgressViewAnimated(view :UIView) {
         UIView.animateWithDuration(0.25, animations: { _ in
             view.alpha = 1.0
             })
@@ -406,7 +454,7 @@ private extension WebViewController {
     }
     
     func scrollingDidStop(scrollView: UIScrollView) {
-        if showToolBar {
+        if let _ = self.toolBar {
             if let startDragPosition = self.startDragPosition {
                 self.startDragPosition = nil
                 let offset = scrollView.contentOffset.y - startDragPosition
@@ -418,10 +466,30 @@ private extension WebViewController {
     }
     
     func showToolBarAnimated() {
-        toolBar.hidden = false
-        UIView.animateWithDuration(0.5) { [unowned self] in
-            self.toolBarBottomConstraint.constant = 0
-            self.view.layoutIfNeeded()
+        if let toolBar = self.toolBar {
+            toolBar.hidden = false
+            UIView.animateWithDuration(0.25) { [unowned self] in
+                self.toolBarBottomConstraint.constant = 0
+                self.view.layoutIfNeeded()
+            }
+            let inset = webView.scrollView.scrollIndicatorInsets
+            webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+            webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+        }
+        if let button = hiddenToolBarRestoreButton {
+            button.enabled = false
+        }
+    }
+    
+    func hideToolBar() {
+        if let toolBar = self.toolBar {
+            toolBar.hidden = true
+            let inset = webView.scrollView.scrollIndicatorInsets
+            webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, 0, inset.right)
+            webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, 0, inset.right)
+            if let button = hiddenToolBarRestoreButton {
+                button.enabled = true
+            }
         }
     }
     
