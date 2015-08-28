@@ -109,6 +109,7 @@ public class WebViewController: UIViewController {
     override public func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)
         webView.removeObserver(self, forKeyPath: "estimatedProgress")
+        webView.removeObserver(self, forKeyPath: "title")
     }
     
     override public func viewWillLayoutSubviews() {
@@ -125,6 +126,7 @@ public class WebViewController: UIViewController {
     
     /// private vars
     private var webContext = UnsafeMutablePointer<Int>()
+    private var customTitle: String?
     private var contentType: ContentType
     private var closeHandler: ((controller: WebViewController) -> Void)?
     private var webViewController: UIViewController!
@@ -147,8 +149,6 @@ private extension WebViewController {
     
     func setupUI() {
         
-        view.tintColor = tintColor
-
         webViewController = UIViewController(nibName: nil, bundle: nil)
         if let navigationController = self.navigationController {
             // will show in navigation controller
@@ -181,6 +181,8 @@ private extension WebViewController {
             }
         }
         
+        view.tintColor = tintColor
+        customTitle = title
     }
     
     func setupWebView() {
@@ -208,6 +210,7 @@ private extension WebViewController {
         
         // observer & delegates
         webView.addObserver(self, forKeyPath: "estimatedProgress", options: NSKeyValueObservingOptions.New, context: &webContext)
+        webView.addObserver(self, forKeyPath: "title", options: NSKeyValueObservingOptions.New, context: &webContext)
         webView.navigationDelegate = self
         webView.scrollView.delegate = self
     }
@@ -346,7 +349,7 @@ public extension WebViewController {
     
     override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         
-        if context == &webContext {
+        if context == &webContext && keyPath == "estimatedProgress" {
             if let newValue = change?[NSKeyValueChangeNewKey] as? Float {
                 
                 if let progressView = self.progressView {
@@ -365,7 +368,15 @@ public extension WebViewController {
                 }
                 
             }
-        } else {
+        }
+        else if context == &webContext && keyPath == "title" {
+            if customTitle == nil {
+                if let newValue = change?[NSKeyValueChangeNewKey] as? String {
+                    title = newValue
+                }
+            }
+        }
+        else {
             super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
         }
         
