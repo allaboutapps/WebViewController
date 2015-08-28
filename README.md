@@ -1,6 +1,8 @@
 # WebViewController
 
-A WebViewController to display external and local content written in swift.
+A WebViewController to display external and local content written in swift 2.0.
+
+supported iOS Version +8.0
 
 ## Usage
 

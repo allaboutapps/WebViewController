@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>ABE770CD-21FF-4958-B7F5-859602CB5CB8</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Example</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>55FC3FF98DF1B1138430C61AF1385C6D08FF3B24</key>
+		<string>ssh://git.allaboutapps.at:2222/aaaios/webviewcontroller.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Example.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>55FC3FF98DF1B1138430C61AF1385C6D08FF3B24</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://git.allaboutapps.at:2222/aaaios/webviewcontroller.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>55FC3FF98DF1B1138430C61AF1385C6D08FF3B24</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>55FC3FF98DF1B1138430C61AF1385C6D08FF3B24</string>
+			<key>IDESourceControlWCCName</key>
+			<string>WebViewController</string>
+		</dict>
+	</array>
+</dict>
+</plist>
