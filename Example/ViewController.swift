@@ -28,6 +28,8 @@ class ViewController: UIViewController {
             controller.dismissViewControllerAnimated(true, completion: nil)
         }
         webView.autoHideToolbar = false
+        webView.tintColor = UIColor.redColor()
+        webView.showLoadingProgress = false
         
         
 //        presentViewController(webView, animated: true, completion: nil)
@@ -40,6 +42,11 @@ class ViewController: UIViewController {
         let webView = WebViewController(content: .ExternalURL(url: url)) { controller in
             controller.dismissViewControllerAnimated(true, completion: nil)
         }
+        webView.title = "hallo"
+        webView.tintColor = UIColor.orangeColor()
+        webView.autoHideToolbar = false
+        
+        
         //        presentViewController(webView, animated: true, completion: nil)
         navigationController?.showViewController(webView, sender: self)
     }
@@ -50,8 +57,9 @@ class ViewController: UIViewController {
         let webView = WebViewController(content: .ExternalURL(url: url)) { controller in
             controller.dismissViewControllerAnimated(true, completion: nil)
         }
-        //        presentViewController(webView, animated: true, completion: nil)
-        navigationController?.showViewController(webView, sender: self)
+        presentViewController(webView, animated: true, completion: nil)
+        webView.title = "apple"
+//        navigationController?.showViewController(webView, sender: self)
     }
     
 
