@@ -36,7 +36,7 @@ presentViewController(webView, animated: true, completion: nil)
 >App Transport Security (ATS) lets an app add a declaration to its Info.plist file that specifies the domains with which it needs secure communication. ATS prevents accidental disclosure, provides secure default behavior, and is easy to adopt. You should adopt ATS as soon as possible, regardless of whether you’re creating a new app or updating an existing one.
 
 >If you’re developing a new app, you should use HTTPS exclusively. If you have an existing app, you should use HTTPS as much as you can right now, and create a plan for migrating the rest of your app as soon as possible.
-If you want to display websites without https you have to enter the basepath in your Info.plist 
+If you want to display websites without https you have to enter the basepath in your ```Info.plist ```
 
 ```bash
 <key>NSAppTransportSecurity</key>
@@ -61,6 +61,15 @@ If you want to display websites without https you have to enter the basepath in 
 
 For more information about ATS go to:
 <http://ste.vn/2015/06/10/configuring-app-transport-security-ios-9-osx-10-11>
+
+## Install with Carthage
+
+To integrate WebViewController into your Xcode project using Carthage, specify it in your ```Cartfile```
+
+```
+git "ssh://git@git.allaboutapps.at:2222/aaaios/webviewcontroller.git" == 0.1
+```
+This framework has to build with xcode7+
 
 
 ## Tests
