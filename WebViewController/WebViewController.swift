@@ -375,6 +375,9 @@ public extension WebViewController {
                     }
                 }
                 
+                if let barReloadButton = barReloadButton {
+                    barReloadButton.enabled = (newValue >= 0.9)
+                }
             }
         }
         else if context == &webContext && keyPath == "title" {
