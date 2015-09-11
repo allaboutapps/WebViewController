@@ -1,0 +1,29 @@
+html, body {
+    margin: 0px;
+    padding: 0.5em;
+}
+body {
+    color: #ff0000;
+}
+
+h1 {
+    font-size: 20px;
+    font-weight: 900;
+}
+
+li {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+}
+
+.alnright { text-align: right; }
+
+table {
+    border-spacing: 0.5em;
+    padding: 0.5em;
+}
+
+h2 {
+    font-size: 16px;
+ <!-- color : #AF1685-->
+}

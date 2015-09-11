@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		051370851BA2DA3C008A85CD /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 051370841BA2DA3C008A85CD /* style.css */; settings = {ASSET_TAGS = (); }; };
 		056FDEB21B90493C00AF951E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056FDEB11B90493C00AF951E /* AppDelegate.swift */; };
 		056FDEB41B90493C00AF951E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056FDEB31B90493C00AF951E /* ViewController.swift */; };
 		056FDEB71B90493C00AF951E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 056FDEB51B90493C00AF951E /* Main.storyboard */; };
@@ -19,6 +20,7 @@
 		056FDEDE1B90495B00AF951E /* WebViewController.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 056FDEC81B90495B00AF951E /* WebViewController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		056FDEE71B90496700AF951E /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056FDEE61B90496700AF951E /* WebViewController.swift */; };
 		056FDEE91B90497200AF951E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 056FDEE81B90497200AF951E /* Assets.xcassets */; };
+		05E29E4B1B943944000991E8 /* contact.html in Resources */ = {isa = PBXBuildFile; fileRef = 05E29E4A1B943944000991E8 /* contact.html */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +62,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		051370841BA2DA3C008A85CD /* style.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = style.css; sourceTree = "<group>"; };
 		056FDEAE1B90493C00AF951E /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		056FDEB11B90493C00AF951E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		056FDEB31B90493C00AF951E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -75,6 +78,7 @@
 		056FDEDA1B90495B00AF951E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		056FDEE61B90496700AF951E /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		056FDEE81B90497200AF951E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		05E29E4A1B943944000991E8 /* contact.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = contact.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +131,8 @@
 		056FDEB01B90493C00AF951E /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				051370841BA2DA3C008A85CD /* style.css */,
+				05E29E4A1B943944000991E8 /* contact.html */,
 				056FDEB11B90493C00AF951E /* AppDelegate.swift */,
 				056FDEB31B90493C00AF951E /* ViewController.swift */,
 				056FDEB51B90493C00AF951E /* Main.storyboard */,
@@ -279,7 +285,9 @@
 			files = (
 				056FDEBC1B90493C00AF951E /* LaunchScreen.storyboard in Resources */,
 				056FDEB91B90493C00AF951E /* Assets.xcassets in Resources */,
+				051370851BA2DA3C008A85CD /* style.css in Resources */,
 				056FDEB71B90493C00AF951E /* Main.storyboard in Resources */,
+				05E29E4B1B943944000991E8 /* contact.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

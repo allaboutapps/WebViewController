@@ -17,9 +17,6 @@ public enum ContentType {
 
 public class WebViewController: UIViewController {
 
-    /// WKWebView will present web content
-    public var webView: WKWebView!
-    
     /// show loading progressBar, by default progressbar is only shown for ExternalURL
     public var showLoadingProgress = true
     
@@ -34,6 +31,9 @@ public class WebViewController: UIViewController {
     
     /// tintColor will color barButtons and progressBar color
     public var tintColor: UIColor = UIColor.blueColor()
+    
+    /// tintColor will color barButtons and progressBar color
+    public var openExternalLinksInSafari: Bool = true
     
     /**
     Call to inject an CSS file from bundle
@@ -125,6 +125,7 @@ public class WebViewController: UIViewController {
     }
     
     /// private vars
+    private var webView: WKWebView!
     private var webContext = UnsafeMutablePointer<Int>()
     private var customTitle: String?
     private var contentType: ContentType
@@ -211,6 +212,7 @@ private extension WebViewController {
         // observer & delegates
         webView.addObserver(self, forKeyPath: "estimatedProgress", options: NSKeyValueObservingOptions.New, context: &webContext)
         webView.addObserver(self, forKeyPath: "title", options: NSKeyValueObservingOptions.New, context: &webContext)
+        webView.UIDelegate = self
         webView.navigationDelegate = self
         webView.scrollView.delegate = self
     }
@@ -300,7 +302,13 @@ private extension WebViewController {
         if #available(iOS 9.0, *) {
             webView.loadFileURL(url, allowingReadAccessToURL: url)
         } else {
-            webView.loadRequest(NSURLRequest(URL:url))
+            // iOS8 bug, will not load bundle files in wkwebview
+            do {
+                let htmlString = try String(contentsOfFile: url.absoluteString, encoding: NSUTF8StringEncoding)
+                webView.loadHTMLString(htmlString, baseURL: nil)
+            } catch {
+                print("[WebViewController] Could not load string from file in bundle")
+            }
         }
         webViewController.title = title
     }
@@ -372,7 +380,11 @@ public extension WebViewController {
         else if context == &webContext && keyPath == "title" {
             if customTitle == nil {
                 if let newValue = change?[NSKeyValueChangeNewKey] as? String {
-                    title = newValue
+                    if let _ = modalNavigationController {
+                        webViewController.title = newValue
+                    } else {
+                        title = newValue
+                    }
                 }
             }
         }
@@ -384,22 +396,66 @@ public extension WebViewController {
     
 }
 
+// WKUIDelegate
+extension WebViewController: WKUIDelegate {
+    
+    public func webView(webView: WKWebView, createWebViewWithConfiguration configuration: WKWebViewConfiguration, forNavigationAction navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if openExternalLinksInSafari {
+            if navigationAction.targetFrame == nil {
+                if let url = navigationAction.request.URL {
+                    if url.description.lowercaseString.rangeOfString("http://") != nil || url.description.lowercaseString.rangeOfString("https://") != nil || url.description.lowercaseString.rangeOfString("mailto:") != nil  {
+                        UIApplication.sharedApplication().openURL(url)
+                    }
+                }
+            }
+        }
+        return nil
+    }
+
+}
+
+// MARK: - WKNavigationDelegate
 extension WebViewController: WKNavigationDelegate {
     
     public func webView(webView: WKWebView, didCommitNavigation navigation: WKNavigation!) {
-        updateToolBarButtons()
+        if let _ = self.toolBar {
+            updateToolBarButtons()
+        }
     }
     
     public func webView(webView: WKWebView, didFailNavigation navigation: WKNavigation!, withError error: NSError) {
-        updateToolBarButtons()
+        if let _ = self.toolBar {
+            updateToolBarButtons()
+        }
     }
     
     public func webView(webView: WKWebView, didFinishNavigation navigation: WKNavigation!) {
-        updateToolBarButtons()
+        if let _ = self.toolBar {
+            updateToolBarButtons()
+        }
     }
     
+    public func webView(webView: WKWebView, decidePolicyForNavigationAction navigationAction: WKNavigationAction, decisionHandler: (WKNavigationActionPolicy) -> Void) {
+        
+        if let url = navigationAction.request.URL where openExternalLinksInSafari{
+            switch contentType {
+            case .HtmlString:
+                openURLInExternalApp(url) ? decisionHandler(.Cancel) : decisionHandler(.Allow)
+                return
+            case .LocalURL:
+                openURLInExternalApp(url) ? decisionHandler(.Cancel) : decisionHandler(.Allow)
+                return
+            default:
+                break
+            }
+        }
+        
+        decisionHandler(.Allow)
+        
+    }
 }
 
+// MARK: - UIScrollViewDelegate
 extension WebViewController: UIScrollViewDelegate {
     
     public func scrollViewWillBeginDragging(scrollView: UIScrollView) {
@@ -509,6 +565,16 @@ private extension WebViewController {
         barForwardButton.enabled = webView.canGoForward
     }
     
+    func openURLInExternalApp(url : NSURL) -> Bool {
+        if url.absoluteString.hasPrefix("http") || url.absoluteString.hasPrefix("mailto") {
+            if UIApplication.sharedApplication().canOpenURL(url) {
+                UIApplication.sharedApplication().openURL(url)
+                return true
+            }
+        }
+        return false
+    }
+  
     func cssJSContentForFile(fileName: String) -> String {
         
         var cssString = ""
