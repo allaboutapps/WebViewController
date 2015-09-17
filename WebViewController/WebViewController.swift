@@ -19,20 +19,20 @@ public class WebViewController: UIViewController {
 
     /// show loading progressBar, by default progressbar is only shown for ExternalURL
     public var showLoadingProgress = true
-    
+
     /// show loading toolBar, by default toolBar is only shown for ExternalURL
     public var showToolBar = false
-    
+
     /// automatically hides/show tool bar on scroll
     public var autoHideToolbar = true
-    
-    /// will add an hidden button at buttom to restore toolbar on touch
+
+    /// will add an hidden button at buttom to restore toolbar on touch. Only if toolBar is enabled
     public var restoreToolBarOnBottomTouch = true
     
     /// tintColor will color barButtons and progressBar color
     public var tintColor: UIColor = UIColor.blueColor()
     
-    /// tintColor will color barButtons and progressBar color
+    /// if enabled will open urls with http:// or https:// in Safari. mailto: emails will always open with mail app.
     public var openExternalLinksInSafari: Bool = true
     
     /**
@@ -40,19 +40,19 @@ public class WebViewController: UIViewController {
     
     :param: filename without file extension
     */
-    public func addCSSFileFromBundle(filename: String) {
-        cssScript = WKUserScript(source: cssJSContentForFile(filename), injectionTime: .AtDocumentStart, forMainFrameOnly: false)
+    public func addCSSFileFromBundle(bundle bundle: NSBundle, filename: String) {
+        cssScript = WKUserScript(source: cssJSContentForFile(bundle: bundle, fileName: filename), injectionTime: .AtDocumentStart, forMainFrameOnly: false)
     }
     
     /**
-        Do not use init with code init:content:closeHandler is recommend
+        Do not use init with coder! "init:content:closeHandler" is recommend
     */
     required public init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     /**
-    Returns a WebViewController init with content and closeHandler
+    Returns a WebViewController init with content and optional closeHandler
     
     :param: 
         #content:
@@ -198,6 +198,8 @@ private extension WebViewController {
         webView = WKWebView(frame: CGRectZero, configuration: configuration)
         webView.translatesAutoresizingMaskIntoConstraints = false
         webViewController.view.addSubview(webView)
+        webView.scrollView.maximumZoomScale = 1.0
+        webView.scrollView.minimumZoomScale = 1.0
         
         let leftWeb = NSLayoutConstraint(item: webView, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
         let rightWeb = NSLayoutConstraint(item: webView, attribute: .Right, relatedBy: .Equal, toItem: webViewController.view, attribute: .Right, multiplier: 1.0, constant: 0.0)
@@ -314,7 +316,18 @@ private extension WebViewController {
     }
     
     func loadHtmlString(html: String) {
-        webView.loadHTMLString(html, baseURL: nil)
+        
+        var htmlString = ""
+        
+        if !html.containsString("<html>") {
+            htmlString = "<html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\" /></head><body>"
+            htmlString += html
+            htmlString += "</body></html>"
+        } else {
+            htmlString = html
+        }
+        
+        webView.loadHTMLString(htmlString, baseURL: nil)
         webView.configuration.preferences.minimumFontSize = 16.0
         webViewController.title = title
     }
@@ -440,7 +453,7 @@ extension WebViewController: WKNavigationDelegate {
     
     public func webView(webView: WKWebView, decidePolicyForNavigationAction navigationAction: WKNavigationAction, decisionHandler: (WKNavigationActionPolicy) -> Void) {
         
-        if let url = navigationAction.request.URL where openExternalLinksInSafari{
+        if let url = navigationAction.request.URL where openExternalLinksInSafari || url.absoluteString.containsString("mailto") {
             switch contentType {
             case .HtmlString:
                 openURLInExternalApp(url) ? decisionHandler(.Cancel) : decisionHandler(.Allow)
@@ -578,12 +591,12 @@ private extension WebViewController {
         return false
     }
   
-    func cssJSContentForFile(fileName: String) -> String {
+    func cssJSContentForFile(bundle bundle: NSBundle, fileName: String) -> String {
         
         var cssString = ""
         var js = ""
         
-        if let url = NSBundle.mainBundle().pathForResource(fileName, ofType:"css") {
+        if let url = bundle.pathForResource(fileName, ofType:"css") {
             do {
                 cssString = try String(contentsOfFile: url, encoding: NSUTF8StringEncoding)
                 cssString = cssString.stringByReplacingOccurrencesOfString("\n", withString: "")

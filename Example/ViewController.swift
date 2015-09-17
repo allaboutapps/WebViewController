@@ -34,19 +34,24 @@ class ViewController: UIViewController {
     
     @IBAction func openWebSite2(sender: AnyObject) {
         
-        let url = NSURL(string: NSBundle.mainBundle().pathForResource("contact", ofType:"html")!)!
+        let path = NSBundle.mainBundle().pathForResource("contact", ofType:"html")!
         
-        let webView = WebViewController(content: .LocalURL(url: url)) { controller in
-            controller.dismissViewControllerAnimated(true, completion: nil)
-        }
+        let url = NSURL(fileURLWithPath: path)
+        
+        
+        
+        url.isFileReferenceURL()
+        
+        let webView = WebViewController(content: .LocalURL(url: url), closeHandler: nil)
         
         webView.title = "hallo"
         webView.tintColor = UIColor.orangeColor()
-        webView.addCSSFileFromBundle("style")
-        webView.openExternalLinksInSafari = false
+        webView.addCSSFileFromBundle(bundle: NSBundle.mainBundle(), filename: "style")
+        webView.openExternalLinksInSafari = true
+        webView.showLoadingProgress = true
         
-                presentViewController(webView, animated: true, completion: nil)
-//        navigationController?.showViewController(webView, sender: self)
+//                presentViewController(webView, animated: true, completion: nil)
+        navigationController?.showViewController(webView, sender: self)
     }
     
     @IBAction func openWebSite3(sender: AnyObject) {

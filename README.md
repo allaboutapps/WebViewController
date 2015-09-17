@@ -67,7 +67,7 @@ For more information about ATS go to:
 To integrate WebViewController into your Xcode project using Carthage, specify it in your ```Cartfile```
 
 ```
-git "ssh://git@git.allaboutapps.at:2222/aaaios/webviewcontroller.git" == 0.3
+git "ssh://git@git.allaboutapps.at:2222/aaaios/webviewcontroller.git" ~> 0.4
 ```
 This framework has to build with xcode7+
 
