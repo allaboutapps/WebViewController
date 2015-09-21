@@ -40,8 +40,8 @@ public class WebViewController: UIViewController {
     
     :param: filename without file extension
     */
-    public func addCSSFileFromBundle(bundle bundle: NSBundle, filename: String) {
-        cssScript = WKUserScript(source: cssJSContentForFile(bundle: bundle, fileName: filename), injectionTime: .AtDocumentStart, forMainFrameOnly: false)
+    public func addCSS(cssFileName: String, bundle: NSBundle = NSBundle.mainBundle()) {
+        cssScript = WKUserScript(source: cssJSContentForFile(bundle: bundle, fileName: cssFileName), injectionTime: .AtDocumentStart, forMainFrameOnly: false)
     }
     
     /**
@@ -118,12 +118,7 @@ public class WebViewController: UIViewController {
             webViewController.view.frame = self.view.bounds
         }
     }
-    
-    override public func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        print("[WebViewController] - DidReceiveMemoryWarning")
-    }
-    
+
     /// private vars
     private var webView: WKWebView!
     private var webContext = UnsafeMutablePointer<Int>()
@@ -212,8 +207,8 @@ private extension WebViewController {
         webViewController.view.addConstraint(bottomWeb)
         
         // observer & delegates
-        webView.addObserver(self, forKeyPath: "estimatedProgress", options: NSKeyValueObservingOptions.New, context: &webContext)
-        webView.addObserver(self, forKeyPath: "title", options: NSKeyValueObservingOptions.New, context: &webContext)
+        webView.addObserver(self, forKeyPath: "estimatedProgress", options: [NSKeyValueObservingOptions.New, NSKeyValueObservingOptions.Initial], context: &webContext)
+        webView.addObserver(self, forKeyPath: "title", options: [NSKeyValueObservingOptions.New, NSKeyValueObservingOptions.Initial], context: &webContext)
         webView.UIDelegate = self
         webView.navigationDelegate = self
         webView.scrollView.delegate = self

@@ -6,8 +6,8 @@ supported iOS Version +8.0
 
 ## Usage
 
-Init WebViewController with ContentType.
-ContentType could be an external URL, hmtl file in bundle or just an html string.
+The `WebViewController` needs to be initialized with a `ContentType`.
+ContentType can either be an external URL, a local HTML file in the application bundle or an HTML string.
 
 ```swift
 let url = NSURL(string: "https://apple.com")!
@@ -17,26 +17,29 @@ let webView = WebViewController(content: .ExternalURL(url: url)) { controller in
 presentViewController(webView, animated: true, completion: nil)
 ```
 
-### Properties
+### Configuration
 
-- webView: WKWebView
-- showLoadingProgess: Bool
-- showToolBar: Bool
-- tintColor: UIColor
+The WebViewController can be configured to show progress and a navigation toolbar, as well as adopt to a specific tint color.
 
-### Methods
+```swift 
+webView.showLoadingProgess = true
+webView.showToolBar = true
+webView.tintColor = .redColor()
+```
 
-- addCSSFileFromBundle(filename: String)
+### Custom CSS for HTML pages
 
+WebViewController support a custom CSS to style your HTML content.
+Call `addCSS:bundle:` to inject a new CSS style.
 
 ## App Transport Security (ATS)
 
-###Since iOS9 HTTPS and TLSv1.2 is required!
+### Since iOS 9 HTTPS and TLSv1.2 is required!
 
->App Transport Security (ATS) lets an app add a declaration to its Info.plist file that specifies the domains with which it needs secure communication. ATS prevents accidental disclosure, provides secure default behavior, and is easy to adopt. You should adopt ATS as soon as possible, regardless of whether you’re creating a new app or updating an existing one.
+> App Transport Security (ATS) lets an app add a declaration to its Info.plist file that specifies the domains with which it needs secure communication. ATS prevents accidental disclosure, provides secure default behavior, and is easy to adopt. You should adopt ATS as soon as possible, regardless of whether you’re creating a new app or updating an existing one.
 
->If you’re developing a new app, you should use HTTPS exclusively. If you have an existing app, you should use HTTPS as much as you can right now, and create a plan for migrating the rest of your app as soon as possible.
-If you want to display websites without https you have to enter the basepath in your ```Info.plist ```
+> If you’re developing a new app, you should use HTTPS exclusively. If you have an existing app, you should use HTTPS as much as you can right now, and create a plan for migrating the rest of your app as soon as possible.
+> If you want to display websites without https you have to enter the basepath in your ```Info.plist ```
 
 ```bash
 <key>NSAppTransportSecurity</key>
