@@ -14,11 +14,12 @@ class ViewController: UIViewController {
     /// Opens an external URL
     @IBAction func openWebSite1(sender: AnyObject) {
         let url = NSURL(string: "https://apple.com")!
-        let webView = WebViewController(content: .ExternalURL(url: url)) { controller in
+        let webView = WebViewController(title: nil, content: .ExternalURL(url: url)) { controller in
             controller.dismissViewControllerAnimated(true, completion: nil)
         }
-        
+
         presentViewController(webView, animated: true, completion: nil)
+//        navigationController?.showViewController(webView, sender: self)
     }
     
     /// Opens a local HTML file
@@ -28,9 +29,8 @@ class ViewController: UIViewController {
         
         url.isFileReferenceURL()
         
-        let webView = WebViewController(content: .LocalURL(url: url), closeHandler: nil)
+        let webView = WebViewController(title: "Hallo Apple", content: .LocalURL(url: url), closeHandler: nil)
         
-        webView.title = "hallo"
         webView.tintColor = UIColor.orangeColor()
         webView.addCSS("style")
         webView.openExternalLinksInSafari = true
@@ -41,11 +41,10 @@ class ViewController: UIViewController {
     
     /// Opens a HTML string
     @IBAction func openWebSite3(sender: AnyObject) {
-        let webView = WebViewController(content: ContentType.HtmlString(htmlString: "hallo")) { controller in
+        let webView = WebViewController(title: "Hallo Apple", content: ContentType.HtmlString(htmlString: "hallo")) { controller in
             controller.dismissViewControllerAnimated(true, completion: nil)
         }
         presentViewController(webView, animated: true, completion: nil)
-        webView.title = "apple"
     }
 
 }

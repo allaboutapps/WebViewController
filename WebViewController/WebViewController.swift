@@ -33,7 +33,7 @@ public class WebViewController: UIViewController {
     public var tintColor: UIColor?
     
     /// tintColor for progressBar
-    public var progressColor: UIColor = UIColor.blueColor()
+    public var progressColor: UIColor?
     
     /// if enabled will open urls with http:// or https:// in Safari. mailto: emails will always open with mail app.
     public var openExternalLinksInSafari: Bool = true
@@ -65,7 +65,8 @@ public class WebViewController: UIViewController {
     
     :returns: WebViewController
     */
-    public init(content: ContentType, closeHandler: ((controller: WebViewController) -> Void)?) {
+    public init(title: String? = nil, content: ContentType, closeHandler: ((controller: WebViewController) -> Void)?) {
+        self.customTitle = title
         self.contentType = content
         self.closeHandler = closeHandler
         super.init(nibName: nil, bundle: nil)
@@ -185,7 +186,6 @@ private extension WebViewController {
         if let tintColor = self.tintColor {
             view.tintColor = tintColor
         }
-        customTitle = title
     }
     
     func setupWebView() {
@@ -225,7 +225,9 @@ private extension WebViewController {
         let progressView = UIProgressView(progressViewStyle: .Default)
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.hidden = true
-        progressView.tintColor = self.progressColor
+        if let progressColor = self.progressColor {
+            progressView.tintColor = progressColor
+        }
         webViewController.view.addSubview(progressView)
         
         let left = NSLayoutConstraint(item: progressView, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
@@ -291,6 +293,14 @@ private extension WebViewController {
         hiddenToolBarRestoreButton = button
     }
     
+    func setTitle(titleText: String?) {
+        if let _ = modalNavigationController {
+            webViewController.title = titleText ?? customTitle
+        } else {
+            title = titleText ?? customTitle
+        }
+    }
+    
 }
 
 // MARK: - loading Content
@@ -299,7 +309,7 @@ private extension WebViewController {
     func loadExternalWebsite(url: NSURL) {
         let request = NSURLRequest(URL: url)
         webView.loadRequest(request)
-        webViewController.title = customTitle
+        setTitle(nil)
     }
     
     func loadLocalHTMLFile(url: NSURL) {
@@ -314,7 +324,7 @@ private extension WebViewController {
                 print("[WebViewController] Could not load string from file in bundle")
             }
         }
-        webViewController.title = title
+        setTitle(nil)
     }
     
     func loadHtmlString(html: String) {
@@ -331,7 +341,7 @@ private extension WebViewController {
         
         webView.loadHTMLString(htmlString, baseURL: nil)
         webView.configuration.preferences.minimumFontSize = 16.0
-        webViewController.title = title
+        setTitle(nil)
     }
     
 }
@@ -398,11 +408,7 @@ public extension WebViewController {
         else if context == &webContext && keyPath == "title" {
             if customTitle == nil {
                 if let newValue = change?[NSKeyValueChangeNewKey] as? String {
-                    if let _ = modalNavigationController {
-                        webViewController.title = newValue
-                    } else {
-                        title = newValue
-                    }
+                    setTitle(newValue)
                 }
             }
         }
