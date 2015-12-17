@@ -29,8 +29,11 @@ public class WebViewController: UIViewController {
     /// will add an hidden button at buttom to restore toolbar on touch. Only if toolBar is enabled
     public var restoreToolBarOnBottomTouch = true
     
-    /// tintColor will color barButtons and progressBar color
-    public var tintColor: UIColor = UIColor.blueColor()
+    /// tintColor will color barButtons
+    public var tintColor: UIColor?
+    
+    /// tintColor for progressBar
+    public var progressColor: UIColor = UIColor.blueColor()
     
     /// if enabled will open urls with http:// or https:// in Safari. mailto: emails will always open with mail app.
     public var openExternalLinksInSafari: Bool = true
@@ -152,7 +155,9 @@ private extension WebViewController {
             addChildViewController(webViewController)
             webViewController.didMoveToParentViewController(self)
             view.addSubview(webViewController.view)
-            navigationController.navigationBar.tintColor = tintColor
+            if let tintColor = self.tintColor {
+                navigationController.navigationBar.tintColor = tintColor
+            }
         } else {
             // will present modal, add navigation controller for navigation bar
             let navigationController = UINavigationController(rootViewController: webViewController)
@@ -177,7 +182,9 @@ private extension WebViewController {
             }
         }
         
-        view.tintColor = tintColor
+        if let tintColor = self.tintColor {
+            view.tintColor = tintColor
+        }
         customTitle = title
     }
     
@@ -218,7 +225,7 @@ private extension WebViewController {
         let progressView = UIProgressView(progressViewStyle: .Default)
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.hidden = true
-        progressView.tintColor = self.tintColor
+        progressView.tintColor = self.progressColor
         webViewController.view.addSubview(progressView)
         
         let left = NSLayoutConstraint(item: progressView, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
@@ -292,7 +299,7 @@ private extension WebViewController {
     func loadExternalWebsite(url: NSURL) {
         let request = NSURLRequest(URL: url)
         webView.loadRequest(request)
-        webViewController.title = title
+        webViewController.title = customTitle
     }
     
     func loadLocalHTMLFile(url: NSURL) {
