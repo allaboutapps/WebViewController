@@ -87,6 +87,9 @@ public class WebViewController: UIViewController {
     deinit {
         webView.scrollView.delegate = nil
         webView.navigationDelegate = nil
+        
+        webView.removeObserver(self, forKeyPath: "estimatedProgress")
+        webView.removeObserver(self, forKeyPath: "title")
     }
     
     override public func viewDidLoad() {
@@ -108,12 +111,6 @@ public class WebViewController: UIViewController {
             loadHtmlString(htmlString)
             break
         }
-    }
-    
-    override public func viewDidDisappear(animated: Bool) {
-        super.viewDidDisappear(animated)
-        webView.removeObserver(self, forKeyPath: "estimatedProgress")
-        webView.removeObserver(self, forKeyPath: "title")
     }
     
     override public func viewWillLayoutSubviews() {
