@@ -128,6 +128,9 @@ public class WebViewController: UIViewController {
         if let webViewController = self.webViewController {
             webViewController.view.frame = self.view.bounds
         }
+        if let contentMode = self.contentMode {
+            webView.contentMode = contentMode
+        }
     }
 
     /// private vars
@@ -226,9 +229,6 @@ private extension WebViewController {
         webView.UIDelegate = self
         webView.navigationDelegate = self
         webView.scrollView.delegate = self
-        if let contentMode = self.contentMode {
-            webView.contentMode = contentMode
-        }
     }
     
     func setupProgressView() {

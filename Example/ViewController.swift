@@ -18,6 +18,8 @@ class ViewController: UIViewController {
             controller.dismissViewControllerAnimated(true, completion: nil)
         }
         
+        webView.contentMode = .Center
+        
 
         presentViewController(webView, animated: true, completion: nil)
 //        navigationController?.showViewController(webView, sender: self)
