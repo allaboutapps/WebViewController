@@ -38,6 +38,9 @@ public class WebViewController: UIViewController {
     /// if enabled will open urls with http:// or https:// in Safari. mailto: emails will always open with mail app.
     public var openExternalLinksInSafari: Bool = true
     
+    /// change the contentMode of the WebView
+    public var contentMode: UIViewContentMode?
+    
     /**
     Call to inject an CSS file from bundle
     
@@ -216,6 +219,9 @@ private extension WebViewController {
         webView.UIDelegate = self
         webView.navigationDelegate = self
         webView.scrollView.delegate = self
+        if let contentMode = self.contentMode {
+            webView.contentMode = contentMode
+        }
     }
     
     func setupProgressView() {
