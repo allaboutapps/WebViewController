@@ -39,7 +39,14 @@ public class WebViewController: UIViewController {
     public var openExternalLinksInSafari: Bool = true
     
     /// change the contentMode of the WebView
-    public var contentMode: UIViewContentMode?
+    public var contentMode: UIViewContentMode? {
+        didSet {
+            guard let contentMode = contentMode, webView = self.webView else {
+                return
+            }
+            webView.contentMode = contentMode
+        }
+    }
     
     /**
     Call to inject an CSS file from bundle
