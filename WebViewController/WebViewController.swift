@@ -20,6 +20,9 @@ public class WebViewController: UIViewController {
     /// show loading progressBar, by default progressbar is only shown for ExternalURL
     public var showLoadingProgress = true
 
+    /// toolbar will be presented at bottom
+    public var toolBar: UIToolbar?
+    
     /// show loading toolBar, by default toolBar is only shown for ExternalURL
     public var showToolBar = false
 
@@ -37,6 +40,9 @@ public class WebViewController: UIViewController {
     
     /// if enabled will open urls with http:// or https:// in Safari. mailto: emails will always open with mail app.
     public var openExternalLinksInSafari: Bool = true
+    
+    /// NavigationController where WebViewcontroller will be presented
+    public var webViewNaviationController: UINavigationController?
     
     /// change the contentMode of the WebView
     public var contentMode: UIViewContentMode? {
@@ -91,7 +97,7 @@ public class WebViewController: UIViewController {
             showToolBar = false
             break
         }
-
+        setupUI()
     }
     
     deinit {
@@ -101,12 +107,7 @@ public class WebViewController: UIViewController {
         webView.removeObserver(self, forKeyPath: "estimatedProgress")
         webView.removeObserver(self, forKeyPath: "title")
     }
-    
-    override public func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-    }
-    
+        
     override public func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -146,9 +147,7 @@ public class WebViewController: UIViewController {
     private var barBackButton: UIBarButtonItem!
     private var barForwardButton: UIBarButtonItem!
     private var barReloadButton: UIBarButtonItem!
-    
     private var progressView: UIProgressView?
-    private var toolBar: UIToolbar?
     private var hiddenToolBarRestoreButton: UIButton?
     private var cssScript: WKUserScript?
     
@@ -169,6 +168,7 @@ private extension WebViewController {
             if let tintColor = self.tintColor {
                 navigationController.navigationBar.tintColor = tintColor
             }
+            self.webViewNaviationController = navigationController
         } else {
             // will present modal, add navigation controller for navigation bar
             let navigationController = UINavigationController(rootViewController: webViewController)
@@ -178,6 +178,7 @@ private extension WebViewController {
             navigationController.didMoveToParentViewController(self)
             view.addSubview(navigationController.view)
             self.modalNavigationController = navigationController
+            self.webViewNaviationController = self.modalNavigationController
         }
         
         setupWebView()

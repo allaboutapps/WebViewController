@@ -19,7 +19,9 @@ class ViewController: UIViewController {
         }
         
         webView.contentMode = .Center
-        
+        if let navigationController = webView.webViewNaviationController {
+            navigationController.setNavigationBarHidden(true, animated: false)
+        }
 
         presentViewController(webView, animated: true, completion: nil)
 //        navigationController?.showViewController(webView, sender: self)
