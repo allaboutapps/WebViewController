@@ -301,6 +301,7 @@ private extension WebViewController {
         webViewController.view.addConstraint(right)
         webViewController.view.addConstraint(bottom)
         webViewController.view.addConstraint(height)
+        button.enabled = false
         hiddenToolBarRestoreButton = button
     }
     
