@@ -13,14 +13,18 @@ class ViewController: UIViewController {
     
     /// Opens an external URL
     @IBAction func openWebSite1(sender: AnyObject) {
-        let url = NSURL(string: "https://apple.com")!
-        let webView = WebViewController(title: "Hallo", content: .ExternalURL(url: url)) { controller in
-            controller.dismissViewControllerAnimated(true, completion: nil)
-        }
+        let url = NSURL(string: "http://oe24.at")!
         
-        webView.contentMode = .Center
+        let webView = WebViewController(title: "Halloe", content: .ExternalURL(url: url), closeHandler: { viewController in
+                viewController.dismissViewControllerAnimated(true, completion: nil)
+        })
+        
         if let navigationController = webView.webViewNaviationController {
             navigationController.setNavigationBarHidden(true, animated: false)
+        }
+        
+        webView.loadedHTMLLinksHandler = { url in
+            print(url)
         }
 
         presentViewController(webView, animated: true, completion: nil)

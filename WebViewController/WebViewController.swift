@@ -44,6 +44,9 @@ public class WebViewController: UIViewController {
     /// NavigationController where WebViewcontroller will be presented
     public var webViewNaviationController: UINavigationController?
     
+    /// pass all urls loaded in webview
+    public var loadedHTMLLinksHandler: ((url: NSURL) -> Void)?
+    
     /// change the contentMode of the WebView
     public var contentMode: UIViewContentMode? {
         didSet {
@@ -81,7 +84,7 @@ public class WebViewController: UIViewController {
     
     :returns: WebViewController
     */
-    public init(title: String? = nil, content: ContentType, closeHandler: ((controller: WebViewController) -> Void)?) {
+    public init(title: String? = nil, content: ContentType, closeHandler: ((controller: WebViewController) -> Void)? = nil){
         self.customTitle = title
         self.contentType = content
         self.closeHandler = closeHandler
@@ -472,6 +475,10 @@ extension WebViewController: WKNavigationDelegate {
     }
     
     public func webView(webView: WKWebView, decidePolicyForNavigationAction navigationAction: WKNavigationAction, decisionHandler: (WKNavigationActionPolicy) -> Void) {
+        
+        if let url = navigationAction.request.URL, linkAction = self.loadedHTMLLinksHandler {
+            linkAction(url: url)
+        }
         
         if let url = navigationAction.request.URL where openExternalLinksInSafari || url.absoluteString.containsString("mailto") {
             switch contentType {
