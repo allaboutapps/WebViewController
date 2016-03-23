@@ -19,10 +19,6 @@ class ViewController: UIViewController {
                 viewController.dismissViewControllerAnimated(true, completion: nil)
         })
         
-        if let navigationController = webView.webViewNaviationController {
-            navigationController.setNavigationBarHidden(true, animated: false)
-        }
-        
         webView.loadedHTMLLinksHandler = { url in
             print(url)
         }

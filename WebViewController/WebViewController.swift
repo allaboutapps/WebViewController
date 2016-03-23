@@ -139,7 +139,7 @@ public class WebViewController: UIViewController {
 
     /// private vars
     private var webView: WKWebView!
-    private var webContext = UnsafeMutablePointer<Int>()
+    private var webContext: UnsafeMutablePointer<Int> = nil
     private var customTitle: String?
     private var contentType: ContentType
     private var closeHandler: ((controller: WebViewController) -> Void)?
@@ -175,7 +175,7 @@ private extension WebViewController {
         } else {
             // will present modal, add navigation controller for navigation bar
             let navigationController = UINavigationController(rootViewController: webViewController)
-            webViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: "webViewDoneButtonPressed")
+            webViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(WebViewController.webViewDoneButtonPressed))
             navigationController.willMoveToParentViewController(self)
             addChildViewController(navigationController)
             navigationController.didMoveToParentViewController(self)
@@ -268,9 +268,9 @@ private extension WebViewController {
         
         let backImage = UIImage(named: "arrow_back", inBundle: NSBundle(forClass: WebViewController.self), compatibleWithTraitCollection: nil)
         
-        barBackButton = UIBarButtonItem(image: backImage, style: .Plain, target: self, action: "historyBackAction:")
-        barForwardButton = UIBarButtonItem(image: UIImage(named: "arrow_forward", inBundle: NSBundle(forClass: WebViewController.self), compatibleWithTraitCollection: nil), style: .Plain, target: self, action: "historyForwardAction:")
-        barReloadButton = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: "reloadAction:")
+        barBackButton = UIBarButtonItem(image: backImage, style: .Plain, target: self, action: #selector(WebViewController.historyBackAction(_:)))
+        barForwardButton = UIBarButtonItem(image: UIImage(named: "arrow_forward", inBundle: NSBundle(forClass: WebViewController.self), compatibleWithTraitCollection: nil), style: .Plain, target: self, action: #selector(WebViewController.historyForwardAction(_:)))
+        barReloadButton = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: #selector(WebViewController.reloadAction(_:)))
         let barFlexSpace = UIBarButtonItem(barButtonSystemItem: .FlexibleSpace, target: nil, action: nil)
         let barFixSpace = UIBarButtonItem(barButtonSystemItem: .FixedSpace, target: nil, action: nil)
         let barFixSpaceSmal = UIBarButtonItem(barButtonSystemItem: .FixedSpace, target: nil, action: nil)
@@ -286,7 +286,7 @@ private extension WebViewController {
     
     func setupHiddenToolBarRestoreButton() {
         let button = UIButton()
-        button.addTarget(self, action: "hiddenToolBarRestoreButtonTouchUpInside:", forControlEvents: .TouchUpInside)
+        button.addTarget(self, action: #selector(WebViewController.hiddenToolBarRestoreButtonTouchUpInside(_:)), forControlEvents: .TouchUpInside)
         button.setTitle("", forState: .Normal)
         button.setTitle("", forState: .Disabled)
         button.setTitle("", forState: .Highlighted)

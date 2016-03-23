@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		051370851BA2DA3C008A85CD /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 051370841BA2DA3C008A85CD /* style.css */; settings = {ASSET_TAGS = (); }; };
+		051370851BA2DA3C008A85CD /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 051370841BA2DA3C008A85CD /* style.css */; };
 		056FDEB21B90493C00AF951E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056FDEB11B90493C00AF951E /* AppDelegate.swift */; };
 		056FDEB41B90493C00AF951E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056FDEB31B90493C00AF951E /* ViewController.swift */; };
 		056FDEB71B90493C00AF951E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 056FDEB51B90493C00AF951E /* Main.storyboard */; };
@@ -20,7 +20,7 @@
 		056FDEDE1B90495B00AF951E /* WebViewController.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 056FDEC81B90495B00AF951E /* WebViewController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		056FDEE71B90496700AF951E /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056FDEE61B90496700AF951E /* WebViewController.swift */; };
 		056FDEE91B90497200AF951E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 056FDEE81B90497200AF951E /* Assets.xcassets */; };
-		05E29E4B1B943944000991E8 /* contact.html in Resources */ = {isa = PBXBuildFile; fileRef = 05E29E4A1B943944000991E8 /* contact.html */; settings = {ASSET_TAGS = (); }; };
+		05E29E4B1B943944000991E8 /* contact.html in Resources */ = {isa = PBXBuildFile; fileRef = 05E29E4A1B943944000991E8 /* contact.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
