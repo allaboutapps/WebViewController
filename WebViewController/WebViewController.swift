@@ -100,7 +100,6 @@ public class WebViewController: UIViewController {
             showToolBar = false
             break
         }
-        setupUI()
     }
     
     deinit {
@@ -113,6 +112,8 @@ public class WebViewController: UIViewController {
         
     override public func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        
+        setupUI()
         
         switch contentType {
         case .ExternalURL(let url):

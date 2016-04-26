@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     
     /// Opens an external URL
     @IBAction func openWebSite1(sender: AnyObject) {
-        let url = NSURL(string: "http://oe24.at")!
+        let url = NSURL(string: "http://google.at")!
         
         let webView = WebViewController(title: "Halloe", content: .ExternalURL(url: url), closeHandler: { viewController in
                 viewController.dismissViewControllerAnimated(true, completion: nil)
@@ -22,9 +22,10 @@ class ViewController: UIViewController {
         webView.loadedHTMLLinksHandler = { url in
             print(url)
         }
-
+        webView.showLoadingProgress = true
+        
         presentViewController(webView, animated: true, completion: nil)
-//        navigationController?.showViewController(webView, sender: self)
+        //navigationController?.showViewController(webView, sender: self)
     }
     
     /// Opens a local HTML file
