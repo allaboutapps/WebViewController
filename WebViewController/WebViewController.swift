@@ -161,6 +161,9 @@ public class WebViewController: UIViewController {
 private extension WebViewController {
     
     func setupUI() {
+        guard webViewController == nil else {
+            return
+        }
         
         webViewController = UIViewController(nibName: nil, bundle: nil)
         if let navigationController = self.navigationController {
