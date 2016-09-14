@@ -337,7 +337,7 @@ private extension WebViewController {
         } else {
             // iOS8 bug, will not load bundle files in wkwebview
             do {
-                let htmlString = try String(contentsOfFile: url.absoluteString, encoding: NSUTF8StringEncoding)
+                let htmlString = try String(contentsOfFile: url.absoluteString!, encoding: NSUTF8StringEncoding)
                 webView.loadHTMLString(htmlString, baseURL: nil)
             } catch {
                 print("[WebViewController] Could not load string from file in bundle")
@@ -484,7 +484,7 @@ extension WebViewController: WKNavigationDelegate {
             linkAction(url: url)
         }
         
-        if let url = navigationAction.request.URL where openExternalLinksInSafari || url.absoluteString.containsString("mailto") {
+        if let url = navigationAction.request.URL where openExternalLinksInSafari || url.absoluteString!.containsString("mailto") {
             switch contentType {
             case .HtmlString:
                 openURLInExternalApp(url) ? decisionHandler(.Cancel) : decisionHandler(.Allow)
@@ -613,7 +613,7 @@ private extension WebViewController {
     }
     
     func openURLInExternalApp(url : NSURL) -> Bool {
-        if url.absoluteString.hasPrefix("http") || url.absoluteString.hasPrefix("mailto") {
+        if url.absoluteString!.hasPrefix("http") || url.absoluteString!.hasPrefix("mailto") {
             if UIApplication.sharedApplication().canOpenURL(url) {
                 UIApplication.sharedApplication().openURL(url)
                 return true
