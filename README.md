@@ -74,6 +74,14 @@ git "ssh://git@git.allaboutapps.at:2222/aaaios/webviewcontroller.git" "swift3"
 ```
 This framework has to build with xcode8+
 
+## Version Compatibility
+
+Current Swift compatibility breakdown:
+
+| Swift Version | Framework Version |
+| ------------- | ----------------- |
+| 3.0	        | swift3          	|
+| 2.3	        | 1.2          		|
 
 ## Tests
 
