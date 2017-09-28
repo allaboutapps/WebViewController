@@ -10,47 +10,47 @@ import UIKit
 import WebKit
 
 public enum ContentType {
-    case LocalURL(url: NSURL)
-    case ExternalURL(url: NSURL)
-    case HtmlString(htmlString: String)
+    case localURL(url: URL)
+    case externalURL(url: URL)
+    case htmlString(htmlString: String)
 }
 
-public class WebViewController: UIViewController {
+open class WebViewController: UIViewController {
 
     /// show loading progressBar, by default progressbar is only shown for ExternalURL
-    public var showLoadingProgress = true
+    open var showLoadingProgress = true
 
     /// toolbar will be presented at bottom
-    public var toolBar: UIToolbar?
+    open var toolBar: UIToolbar?
     
     /// show loading toolBar, by default toolBar is only shown for ExternalURL
-    public var showToolBar = false
+    open var showToolBar = false
 
     /// automatically hides/show tool bar on scroll
-    public var autoHideToolbar = true
+    open var autoHideToolbar = true
 
     /// will add an hidden button at buttom to restore toolbar on touch. Only if toolBar is enabled
-    public var restoreToolBarOnBottomTouch = true
+    open var restoreToolBarOnBottomTouch = true
     
     /// tintColor will color barButtons
-    public var tintColor: UIColor?
+    open var tintColor: UIColor?
     
     /// tintColor for progressBar
-    public var progressColor: UIColor?
+    open var progressColor: UIColor?
     
     /// if enabled will open urls with http:// or https:// in Safari. mailto: emails will always open with mail app.
-    public var openExternalLinksInSafari: Bool = true
+    open var openExternalLinksInSafari: Bool = true
     
     /// NavigationController where WebViewcontroller will be presented
-    public var webViewNaviationController: UINavigationController?
+    open var webViewNaviationController: UINavigationController?
     
     /// pass all urls loaded in webview
-    public var loadedHTMLLinksHandler: ((url: NSURL) -> Void)?
+    open var loadedHTMLLinksHandler: ((_ url: URL) -> Void)?
     
     /// change the contentMode of the WebView
-    public var contentMode: UIViewContentMode? {
+    open var contentMode: UIViewContentMode? {
         didSet {
-            guard let contentMode = contentMode, webView = self.webView else {
+            guard let contentMode = contentMode, let webView = self.webView else {
                 return
             }
             webView.contentMode = contentMode
@@ -62,8 +62,8 @@ public class WebViewController: UIViewController {
     
     :param: filename without file extension
     */
-    public func addCSS(cssFileName: String, bundle: NSBundle = NSBundle.mainBundle()) {
-        cssScript = WKUserScript(source: cssJSContentForFile(bundle: bundle, fileName: cssFileName), injectionTime: .AtDocumentStart, forMainFrameOnly: false)
+    open func addCSS(_ cssFileName: String, bundle: Bundle = Bundle.main) {
+        cssScript = WKUserScript(source: cssJSContentForFile(bundle: bundle, fileName: cssFileName), injectionTime: .atDocumentStart, forMainFrameOnly: false)
     }
     
     /**
@@ -84,14 +84,14 @@ public class WebViewController: UIViewController {
     
     :returns: WebViewController
     */
-    public init(title: String? = nil, content: ContentType, closeHandler: ((controller: WebViewController) -> Void)? = nil){
+    public init(title: String? = nil, content: ContentType, closeHandler: ((_ controller: WebViewController) -> Void)? = nil){
         self.customTitle = title
         self.contentType = content
         self.closeHandler = closeHandler
         super.init(nibName: nil, bundle: nil)
         
         switch contentType {
-        case .ExternalURL:
+        case .externalURL:
             showLoadingProgress = true
             showToolBar = true
             break
@@ -105,30 +105,28 @@ public class WebViewController: UIViewController {
     deinit {
         webView.scrollView.delegate = nil
         webView.navigationDelegate = nil
-        
-        webView.removeObserver(self, forKeyPath: "estimatedProgress")
-        webView.removeObserver(self, forKeyPath: "title")
+        webViewObserver.forEach({ $0.invalidate() })
     }
         
-    override public func viewWillAppear(animated: Bool) {
+    override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         setupUI()
         
         switch contentType {
-        case .ExternalURL(let url):
+        case .externalURL(let url):
             loadExternalWebsite(url)
             break
-        case .LocalURL(let url):
+        case .localURL(let url):
             loadLocalHTMLFile(url)
             break
-        case .HtmlString(let htmlString):
+        case .htmlString(let htmlString):
             loadHtmlString(htmlString)
             break
         }
     }
     
-    override public func viewWillLayoutSubviews() {
+    override open func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         if let webViewController = self.webViewController {
             webViewController.view.frame = self.view.bounds
@@ -139,21 +137,21 @@ public class WebViewController: UIViewController {
     }
 
     /// private vars
-    private var webView: WKWebView!
-    private var webContext: UnsafeMutablePointer<Int> = nil
-    private var customTitle: String?
-    private var contentType: ContentType
-    private var closeHandler: ((controller: WebViewController) -> Void)?
-    private var webViewController: UIViewController!
-    private var toolBarBottomConstraint: NSLayoutConstraint!
-    private var startDragPosition: CGFloat?
-    private var modalNavigationController: UINavigationController?
-    private var barBackButton: UIBarButtonItem!
-    private var barForwardButton: UIBarButtonItem!
-    private var barReloadButton: UIBarButtonItem!
-    private var progressView: UIProgressView?
-    private var hiddenToolBarRestoreButton: UIButton?
-    private var cssScript: WKUserScript?
+    fileprivate var webView: WKWebView!
+    fileprivate var webViewObserver: [NSKeyValueObservation] = []
+    fileprivate var customTitle: String?
+    fileprivate var contentType: ContentType
+    fileprivate var closeHandler: ((_ controller: WebViewController) -> Void)?
+    fileprivate var webViewController: UIViewController!
+    fileprivate var toolBarBottomConstraint: NSLayoutConstraint!
+    fileprivate var startDragPosition: CGFloat?
+    fileprivate var modalNavigationController: UINavigationController?
+    fileprivate var barBackButton: UIBarButtonItem!
+    fileprivate var barForwardButton: UIBarButtonItem!
+    fileprivate var barReloadButton: UIBarButtonItem!
+    fileprivate var progressView: UIProgressView?
+    fileprivate var hiddenToolBarRestoreButton: UIButton?
+    fileprivate var cssScript: WKUserScript?
     
 }
 
@@ -168,9 +166,9 @@ private extension WebViewController {
         webViewController = UIViewController(nibName: nil, bundle: nil)
         if let navigationController = self.navigationController {
             // will show in navigation controller
-            webViewController.willMoveToParentViewController(self)
+            webViewController.willMove(toParentViewController: self)
             addChildViewController(webViewController)
-            webViewController.didMoveToParentViewController(self)
+            webViewController.didMove(toParentViewController: self)
             view.addSubview(webViewController.view)
             if let tintColor = self.tintColor {
                 navigationController.navigationBar.tintColor = tintColor
@@ -179,10 +177,10 @@ private extension WebViewController {
         } else {
             // will present modal, add navigation controller for navigation bar
             let navigationController = UINavigationController(rootViewController: webViewController)
-            webViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(WebViewController.webViewDoneButtonPressed))
-            navigationController.willMoveToParentViewController(self)
+            webViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(WebViewController.webViewDoneButtonPressed))
+            navigationController.willMove(toParentViewController: self)
             addChildViewController(navigationController)
-            navigationController.didMoveToParentViewController(self)
+            navigationController.didMove(toParentViewController: self)
             view.addSubview(navigationController.view)
             self.modalNavigationController = navigationController
             self.webViewNaviationController = self.modalNavigationController
@@ -215,16 +213,16 @@ private extension WebViewController {
             configuration.userContentController.addUserScript(cssScript)
         }
         
-        webView = WKWebView(frame: CGRectZero, configuration: configuration)
+        webView = WKWebView(frame: CGRect.zero, configuration: configuration)
         webView.translatesAutoresizingMaskIntoConstraints = false
         webViewController.view.addSubview(webView)
         webView.scrollView.maximumZoomScale = 1.0
         webView.scrollView.minimumZoomScale = 1.0
         
-        let leftWeb = NSLayoutConstraint(item: webView, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
-        let rightWeb = NSLayoutConstraint(item: webView, attribute: .Right, relatedBy: .Equal, toItem: webViewController.view, attribute: .Right, multiplier: 1.0, constant: 0.0)
-        let topWeb = NSLayoutConstraint(item: webView, attribute: .Top, relatedBy: .Equal, toItem: webViewController.topLayoutGuide, attribute: .Top, multiplier: 1.0, constant: 0.0)
-        let bottomWeb = NSLayoutConstraint(item: webView, attribute: .Bottom, relatedBy: .Equal, toItem: webViewController.bottomLayoutGuide, attribute: .Bottom, multiplier: 1.0, constant: 0.0)
+        let leftWeb = NSLayoutConstraint(item: webView, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
+        let rightWeb = NSLayoutConstraint(item: webView, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
+        let topWeb = NSLayoutConstraint(item: webView, attribute: .top, relatedBy: .equal, toItem: webViewController.topLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
+        let bottomWeb = NSLayoutConstraint(item: webView, attribute: .bottom, relatedBy: .equal, toItem: webViewController.bottomLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: 0.0)
         
         webViewController.view.addConstraint(leftWeb)
         webViewController.view.addConstraint(rightWeb)
@@ -232,25 +230,48 @@ private extension WebViewController {
         webViewController.view.addConstraint(bottomWeb)
         
         // observer & delegates
-        webView.addObserver(self, forKeyPath: "estimatedProgress", options: [NSKeyValueObservingOptions.New, NSKeyValueObservingOptions.Initial], context: &webContext)
-        webView.addObserver(self, forKeyPath: "title", options: [NSKeyValueObservingOptions.New, NSKeyValueObservingOptions.Initial], context: &webContext)
-        webView.UIDelegate = self
+        let progressObserver = webView.observe(\WKWebView.estimatedProgress, options: [.new]) { (wkWebView, change) in
+            guard let newValue = change.newValue, let progressView = self.progressView else { return }
+            
+            progressView.progress = Float(newValue)
+            if !progressView.isHidden && (newValue >= 1.0 || newValue <= 0.0) {
+                self.hideProgressViewAnimated(progressView)
+                if let toolBar = self.toolBar {
+                    // adjust scrollview inset if loading is finished
+                    let inset = self.webView.scrollView.scrollIndicatorInsets
+                    self.webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+                    self.webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+                }
+            } else if progressView.isHidden {
+                self.showProgressViewAnimated(progressView)
+            }
+        }
+        
+        let titleObserver = webView.observe(\WKWebView.title, options: [.new]) { (wkWebView, change) in
+            guard let newValue = change.newValue, self.customTitle == nil else { return }
+            
+            self.setTitle(newValue)
+        }
+        
+        webViewObserver.append(contentsOf: [progressObserver, titleObserver])
+        
+        webView.uiDelegate = self
         webView.navigationDelegate = self
         webView.scrollView.delegate = self
     }
     
     func setupProgressView() {
-        let progressView = UIProgressView(progressViewStyle: .Default)
+        let progressView = UIProgressView(progressViewStyle: .default)
         progressView.translatesAutoresizingMaskIntoConstraints = false
-        progressView.hidden = true
+        progressView.isHidden = true
         if let progressColor = self.progressColor {
             progressView.tintColor = progressColor
         }
         webViewController.view.addSubview(progressView)
         
-        let left = NSLayoutConstraint(item: progressView, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
-        let right = NSLayoutConstraint(item: progressView, attribute: .Right, relatedBy: .Equal, toItem: webViewController.view, attribute: .Right, multiplier: 1.0, constant: 0.0)
-        let vConstraint = NSLayoutConstraint(item: progressView, attribute: .Top, relatedBy: .Equal, toItem: webViewController.topLayoutGuide, attribute: .Bottom, multiplier: 1.0, constant: 0.0)
+        let left = NSLayoutConstraint(item: progressView, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
+        let right = NSLayoutConstraint(item: progressView, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
+        let vConstraint = NSLayoutConstraint(item: progressView, attribute: .top, relatedBy: .equal, toItem: webViewController.topLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: 0.0)
         
         webViewController.view.addConstraint(left)
         webViewController.view.addConstraint(right)
@@ -259,30 +280,30 @@ private extension WebViewController {
     }
     
     func setupToolBar() {
-        let toolBar = UIToolbar(frame: CGRectZero)
+        let toolBar = UIToolbar(frame: CGRect.zero)
         toolBar.translatesAutoresizingMaskIntoConstraints = false
-        toolBar.hidden = !showToolBar
+        toolBar.isHidden = !showToolBar
         webViewController.view.addSubview(toolBar)
-        let tLeft = NSLayoutConstraint(item: toolBar, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
-        let tRight = NSLayoutConstraint(item: toolBar, attribute: .Right, relatedBy: .Equal, toItem: webViewController.view, attribute: .Right, multiplier: 1.0, constant: 0.0)
-        toolBarBottomConstraint = NSLayoutConstraint(item: toolBar, attribute: .Bottom, relatedBy: .Equal, toItem: webViewController.bottomLayoutGuide, attribute: .Top, multiplier: 1.0, constant: 0.0)
+        let tLeft = NSLayoutConstraint(item: toolBar, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
+        let tRight = NSLayoutConstraint(item: toolBar, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
+        toolBarBottomConstraint = NSLayoutConstraint(item: toolBar, attribute: .bottom, relatedBy: .equal, toItem: webViewController.bottomLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
         webViewController.view.addConstraint(tLeft)
         webViewController.view.addConstraint(tRight)
         webViewController.view.addConstraint(toolBarBottomConstraint)
         
-        let backImage = UIImage(named: "arrow_back", inBundle: NSBundle(forClass: WebViewController.self), compatibleWithTraitCollection: nil)
+        let backImage = UIImage(named: "arrow_back", in: Bundle(for: WebViewController.self), compatibleWith: nil)
         
-        barBackButton = UIBarButtonItem(image: backImage, style: .Plain, target: self, action: #selector(WebViewController.historyBackAction(_:)))
-        barForwardButton = UIBarButtonItem(image: UIImage(named: "arrow_forward", inBundle: NSBundle(forClass: WebViewController.self), compatibleWithTraitCollection: nil), style: .Plain, target: self, action: #selector(WebViewController.historyForwardAction(_:)))
-        barReloadButton = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: #selector(WebViewController.reloadAction(_:)))
-        let barFlexSpace = UIBarButtonItem(barButtonSystemItem: .FlexibleSpace, target: nil, action: nil)
-        let barFixSpace = UIBarButtonItem(barButtonSystemItem: .FixedSpace, target: nil, action: nil)
-        let barFixSpaceSmal = UIBarButtonItem(barButtonSystemItem: .FixedSpace, target: nil, action: nil)
+        barBackButton = UIBarButtonItem(image: backImage, style: .plain, target: self, action: #selector(WebViewController.historyBackAction(_:)))
+        barForwardButton = UIBarButtonItem(image: UIImage(named: "arrow_forward", in: Bundle(for: WebViewController.self), compatibleWith: nil), style: .plain, target: self, action: #selector(WebViewController.historyForwardAction(_:)))
+        barReloadButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(WebViewController.reloadAction(_:)))
+        let barFlexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let barFixSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        let barFixSpaceSmal = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
         barFixSpace.width = 20.0
         barFixSpaceSmal.width = 10.0
         
-        barBackButton.enabled = false
-        barForwardButton.enabled = false
+        barBackButton.isEnabled = false
+        barForwardButton.isEnabled = false
         
         toolBar.items = [barFixSpaceSmal, barBackButton, barFixSpace, barForwardButton, barFlexSpace, barReloadButton]
         self.toolBar = toolBar
@@ -290,29 +311,29 @@ private extension WebViewController {
     
     func setupHiddenToolBarRestoreButton() {
         let button = UIButton()
-        button.addTarget(self, action: #selector(WebViewController.hiddenToolBarRestoreButtonTouchUpInside(_:)), forControlEvents: .TouchUpInside)
-        button.setTitle("", forState: .Normal)
-        button.setTitle("", forState: .Disabled)
-        button.setTitle("", forState: .Highlighted)
-        button.setTitle("", forState: .Reserved)
-        button.setTitle("", forState: .Selected)
-        button.setTitle("", forState: .Application)
-        button.backgroundColor = UIColor.clearColor()
+        button.addTarget(self, action: #selector(WebViewController.hiddenToolBarRestoreButtonTouchUpInside(_:)), for: .touchUpInside)
+        button.setTitle("", for: UIControlState())
+        button.setTitle("", for: .disabled)
+        button.setTitle("", for: .highlighted)
+        button.setTitle("", for: .reserved)
+        button.setTitle("", for: .selected)
+        button.setTitle("", for: .application)
+        button.backgroundColor = UIColor.clear
         button.translatesAutoresizingMaskIntoConstraints = false
         webViewController.view.addSubview(button)
-        let left = NSLayoutConstraint(item: button, attribute: .Left, relatedBy: .Equal, toItem: webViewController.view, attribute: .Left, multiplier: 1.0, constant: 0.0)
-        let right = NSLayoutConstraint(item: button, attribute: .Right, relatedBy: .Equal, toItem: webViewController.view, attribute: .Right, multiplier: 1.0, constant: 0.0)
-        let bottom = NSLayoutConstraint(item: button, attribute: .Bottom, relatedBy: .Equal, toItem: webViewController.bottomLayoutGuide, attribute: .Top, multiplier: 1.0, constant: 0.0)
-        let height = NSLayoutConstraint(item: button, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 20.0)
+        let left = NSLayoutConstraint(item: button, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
+        let right = NSLayoutConstraint(item: button, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
+        let bottom = NSLayoutConstraint(item: button, attribute: .bottom, relatedBy: .equal, toItem: webViewController.bottomLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
+        let height = NSLayoutConstraint(item: button, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 20.0)
         webViewController.view.addConstraint(left)
         webViewController.view.addConstraint(right)
         webViewController.view.addConstraint(bottom)
         webViewController.view.addConstraint(height)
-        button.enabled = false
+        button.isEnabled = false
         hiddenToolBarRestoreButton = button
     }
     
-    func setTitle(titleText: String?) {
+    func setTitle(_ titleText: String?) {
         if let _ = modalNavigationController {
             webViewController.title = titleText ?? customTitle
         } else {
@@ -325,19 +346,19 @@ private extension WebViewController {
 // MARK: - loading Content
 private extension WebViewController {
     
-    func loadExternalWebsite(url: NSURL) {
-        let request = NSURLRequest(URL: url)
-        webView.loadRequest(request)
+    func loadExternalWebsite(_ url: URL) {
+        let request = URLRequest(url: url)
+        webView.load(request)
         setTitle(nil)
     }
     
-    func loadLocalHTMLFile(url: NSURL) {
+    func loadLocalHTMLFile(_ url: URL) {
         if #available(iOS 9.0, *) {
-            webView.loadFileURL(url, allowingReadAccessToURL: url)
+            webView.loadFileURL(url, allowingReadAccessTo: url)
         } else {
             // iOS8 bug, will not load bundle files in wkwebview
             do {
-                let htmlString = try String(contentsOfFile: url.absoluteString!, encoding: NSUTF8StringEncoding)
+                let htmlString = try String(contentsOfFile: url.absoluteString, encoding: String.Encoding.utf8)
                 webView.loadHTMLString(htmlString, baseURL: nil)
             } catch {
                 print("[WebViewController] Could not load string from file in bundle")
@@ -346,11 +367,11 @@ private extension WebViewController {
         setTitle(nil)
     }
     
-    func loadHtmlString(html: String) {
+    func loadHtmlString(_ html: String) {
         
         var htmlString = ""
         
-        if !html.containsString("<html>") {
+        if !html.contains("<html>") {
             htmlString = "<html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\" /></head><body>"
             htmlString += html
             htmlString += "</body></html>"
@@ -368,86 +389,43 @@ private extension WebViewController {
 // MARK: - Actions
 extension WebViewController {
     
-    func webViewDoneButtonPressed() {
+    @objc func webViewDoneButtonPressed() {
         if let handler = self.closeHandler {
-            handler(controller: self)
+            handler(self)
         }
     }
     
-    func reloadAction(sender: UIBarButtonItem) {
+    @objc func reloadAction(_ sender: UIBarButtonItem) {
         webView.reloadFromOrigin()
     }
     
-    func historyBackAction(sender: UIBarButtonItem) {
+    @objc func historyBackAction(_ sender: UIBarButtonItem) {
         if webView.canGoBack {
             webView.goBack()
         }
     }
     
-    func historyForwardAction(sender: UIBarButtonItem) {
+    @objc func historyForwardAction(_ sender: UIBarButtonItem) {
         if webView.canGoForward {
             webView.goForward()
         }
     }
     
-    func hiddenToolBarRestoreButtonTouchUpInside(sender: UIButton) {
+    @objc func hiddenToolBarRestoreButtonTouchUpInside(_ sender: UIButton) {
         showToolBarAnimated()
     }
 
 }
 
-// MARK: - Observer
-public extension WebViewController {
-    
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-        
-        if context == &webContext && keyPath == "estimatedProgress" {
-            if let newValue = change?[NSKeyValueChangeNewKey] as? Float {
-                
-                if let progressView = self.progressView {
-                    progressView.progress = newValue
-                    if !progressView.hidden && (newValue >= 1.0 || newValue <= 0.0) {
-                        hideProgressViewAnimated(progressView)
-                        if let toolBar = self.toolBar {
-                            // adjust scrollview inset if loading is finished
-                            let inset = webView.scrollView.scrollIndicatorInsets
-                            webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
-                            webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
-                        }
-                    } else if progressView.hidden {
-                        showProgressViewAnimated(progressView)
-                    }
-                }
-                
-                if let barReloadButton = barReloadButton {
-                    barReloadButton.enabled = (newValue >= 0.9)
-                }
-            }
-        }
-        else if context == &webContext && keyPath == "title" {
-            if customTitle == nil {
-                if let newValue = change?[NSKeyValueChangeNewKey] as? String {
-                    setTitle(newValue)
-                }
-            }
-        }
-        else {
-            super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
-        }
-        
-    }
-    
-}
-
 // WKUIDelegate
 extension WebViewController: WKUIDelegate {
     
-    public func webView(webView: WKWebView, createWebViewWithConfiguration configuration: WKWebViewConfiguration, forNavigationAction navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+    public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         if openExternalLinksInSafari {
             if navigationAction.targetFrame == nil {
-                if let url = navigationAction.request.URL {
-                    if url.description.lowercaseString.rangeOfString("http://") != nil || url.description.lowercaseString.rangeOfString("https://") != nil || url.description.lowercaseString.rangeOfString("mailto:") != nil  {
-                        UIApplication.sharedApplication().openURL(url)
+                if let url = navigationAction.request.url {
+                    if url.description.lowercased().range(of: "http://") != nil || url.description.lowercased().range(of: "https://") != nil || url.description.lowercased().range(of: "mailto:") != nil  {
+                        UIApplication.shared.openURL(url)
                     }
                 }
             }
@@ -460,44 +438,44 @@ extension WebViewController: WKUIDelegate {
 // MARK: - WKNavigationDelegate
 extension WebViewController: WKNavigationDelegate {
     
-    public func webView(webView: WKWebView, didCommitNavigation navigation: WKNavigation!) {
+    public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         if let _ = self.toolBar {
             updateToolBarButtons()
         }
     }
     
-    public func webView(webView: WKWebView, didFailNavigation navigation: WKNavigation!, withError error: NSError) {
+    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         if let _ = self.toolBar {
             updateToolBarButtons()
         }
     }
     
-    public func webView(webView: WKWebView, didFinishNavigation navigation: WKNavigation!) {
+    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         if let _ = self.toolBar {
             updateToolBarButtons()
         }
     }
     
-    public func webView(webView: WKWebView, decidePolicyForNavigationAction navigationAction: WKNavigationAction, decisionHandler: (WKNavigationActionPolicy) -> Void) {
+    public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         
-        if let url = navigationAction.request.URL, linkAction = self.loadedHTMLLinksHandler {
-            linkAction(url: url)
+        if let url = navigationAction.request.url, let linkAction = self.loadedHTMLLinksHandler {
+            linkAction(url)
         }
         
-        if let url = navigationAction.request.URL where openExternalLinksInSafari || url.absoluteString!.containsString("mailto") {
+        if let url = navigationAction.request.url , openExternalLinksInSafari || url.absoluteString.contains("mailto") {
             switch contentType {
-            case .HtmlString:
-                openURLInExternalApp(url) ? decisionHandler(.Cancel) : decisionHandler(.Allow)
+            case .htmlString:
+                openURLInExternalApp(url) ? decisionHandler(.cancel) : decisionHandler(.allow)
                 return
-            case .LocalURL:
-                openURLInExternalApp(url) ? decisionHandler(.Cancel) : decisionHandler(.Allow)
+            case .localURL:
+                openURLInExternalApp(url) ? decisionHandler(.cancel) : decisionHandler(.allow)
                 return
             default:
                 break
             }
         }
         
-        decisionHandler(.Allow)
+        decisionHandler(.allow)
         
     }
 }
@@ -505,40 +483,40 @@ extension WebViewController: WKNavigationDelegate {
 // MARK: - UIScrollViewDelegate
 extension WebViewController: UIScrollViewDelegate {
     
-    public func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         startDragPosition = scrollView.contentOffset.y
     }
     
-    public func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if let _ = self.startDragPosition {
             if let toolBar = toolBar {
-                if !toolBar.hidden && autoHideToolbar {
+                if !toolBar.isHidden && autoHideToolbar {
                     showToolBarAnimated()
                 }
             }
         }
     }
     
-    public func scrollViewDidScroll(scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if autoHideToolbar {
-            if let startDragPosition = self.startDragPosition, toolBar = self.toolBar {
+            if let startDragPosition = self.startDragPosition, let toolBar = self.toolBar {
                 let offset = scrollView.contentOffset.y - startDragPosition
-                if offset <= toolBar.bounds.size.height && offset > 0 && !toolBar.hidden {
+                if offset <= toolBar.bounds.size.height && offset > 0 && !toolBar.isHidden {
                     toolBarBottomConstraint.constant = offset
-                } else if !toolBar.hidden && offset > toolBar.bounds.size.height {
+                } else if !toolBar.isHidden && offset > toolBar.bounds.size.height {
                     hideToolBar()
                 }
             }
         }
     }
     
-    public func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
+    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         if autoHideToolbar {
             scrollingDidStop(scrollView)
         }
     }
     
-    public func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if autoHideToolbar {
             scrollingDidStop(scrollView)
         }
@@ -549,25 +527,25 @@ extension WebViewController: UIScrollViewDelegate {
 // MARK: - Helper
 private extension WebViewController {
     
-    func hideProgressViewAnimated(view :UIView) {
-        UIView.animateWithDuration(0.25, animations: { _ in
+    func hideProgressViewAnimated(_ view :UIView) {
+        UIView.animate(withDuration: 0.25, animations: { 
             view.alpha = 0.0
+            }, completion: { complete in
+            view.isHidden = true
             })
-            { complete in
-            view.hidden = true
-            }
+            
     }
     
-    func showProgressViewAnimated(view :UIView) {
-        UIView.animateWithDuration(0.25, animations: { _ in
+    func showProgressViewAnimated(_ view :UIView) {
+        UIView.animate(withDuration: 0.25, animations: { 
             view.alpha = 1.0
+            }, completion: { complete in
+                view.isHidden = false
             })
-            { complete in
-                view.hidden = false
-            }
+            
     }
     
-    func scrollingDidStop(scrollView: UIScrollView) {
+    func scrollingDidStop(_ scrollView: UIScrollView) {
         if let _ = self.toolBar {
             if let startDragPosition = self.startDragPosition {
                 self.startDragPosition = nil
@@ -581,56 +559,56 @@ private extension WebViewController {
     
     func showToolBarAnimated() {
         if let toolBar = self.toolBar {
-            toolBar.hidden = false
-            UIView.animateWithDuration(0.25) { [unowned self] in
+            toolBar.isHidden = false
+            UIView.animate(withDuration: 0.25, animations: { [unowned self] in
                 self.toolBarBottomConstraint.constant = 0
                 self.view.layoutIfNeeded()
-            }
+            }) 
             let inset = webView.scrollView.scrollIndicatorInsets
             webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
             webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
         }
         if let button = hiddenToolBarRestoreButton {
-            button.enabled = false
+            button.isEnabled = false
         }
     }
     
     func hideToolBar() {
         if let toolBar = self.toolBar {
-            toolBar.hidden = true
+            toolBar.isHidden = true
             let inset = webView.scrollView.scrollIndicatorInsets
             webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, 0, inset.right)
             webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, 0, inset.right)
             if let button = hiddenToolBarRestoreButton {
-                button.enabled = true
+                button.isEnabled = true
             }
         }
     }
     
     func updateToolBarButtons() {
-        barBackButton.enabled = webView.canGoBack
-        barForwardButton.enabled = webView.canGoForward
+        barBackButton.isEnabled = webView.canGoBack
+        barForwardButton.isEnabled = webView.canGoForward
     }
     
-    func openURLInExternalApp(url : NSURL) -> Bool {
-        if url.absoluteString!.hasPrefix("http") || url.absoluteString!.hasPrefix("mailto") {
-            if UIApplication.sharedApplication().canOpenURL(url) {
-                UIApplication.sharedApplication().openURL(url)
+    func openURLInExternalApp(_ url : URL) -> Bool {
+        if url.absoluteString.hasPrefix("http") || url.absoluteString.hasPrefix("mailto") {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.openURL(url)
                 return true
             }
         }
         return false
     }
   
-    func cssJSContentForFile(bundle bundle: NSBundle, fileName: String) -> String {
+    func cssJSContentForFile(bundle: Bundle, fileName: String) -> String {
         
         var cssString = ""
         var js = ""
         
-        if let url = bundle.pathForResource(fileName, ofType:"css") {
+        if let url = bundle.path(forResource: fileName, ofType:"css") {
             do {
-                cssString = try String(contentsOfFile: url, encoding: NSUTF8StringEncoding)
-                cssString = cssString.stringByReplacingOccurrencesOfString("\n", withString: "")
+                cssString = try String(contentsOfFile: url, encoding: String.Encoding.utf8)
+                cssString = cssString.replacingOccurrences(of: "\n", with: "")
             } catch {
                 print("[WebViewController] Error: failed to read css file")
             }

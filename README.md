@@ -1,6 +1,6 @@
 # WebViewController
 
-A WebViewController to display external and local content written in swift.
+A WebViewController to display external and local content written in swift 4.0.
 
 supported iOS Version +8.0
 
@@ -70,7 +70,7 @@ For more information about ATS go to:
 To integrate WebViewController into your Xcode project using Carthage, specify it in your ```Cartfile```
 
 ```
-git "ssh://git@git.allaboutapps.at:2222/aaaios/webviewcontroller.git" ~> 1.2
+git "ssh://git@bitbucket-prod.allaboutapps.at:2222/aaaios/webviewcontroller.git"
 ```
 This framework has to build with xcode8+
 
@@ -80,6 +80,7 @@ Current Swift compatibility breakdown:
 
 | Swift Version | Framework Version |
 | ------------- | ----------------- |
+| 4.0            | 3.0              |
 | 3.0	        | swift3          	|
 | 2.3	        | 1.2          		|
 
