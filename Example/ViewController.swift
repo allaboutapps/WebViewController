@@ -15,7 +15,7 @@ class ViewController: UIViewController {
     @IBAction func openWebSite1(_ sender: AnyObject) {
         let url = URL(string: "http://google.at")!
         
-        let webView = WebViewController(title: "Halloe", content: .externalURL(url: url), closeHandler: { viewController in
+        let webView = WebViewController(title: "Hello", content: .externalURL(url: url), closeHandler: { viewController in
                 viewController.dismiss(animated: true, completion: nil)
         })
         

@@ -1,6 +1,6 @@
 # WebViewController
 
-A WebViewController to display external and local content written in swift 3.0.
+A WebViewController to display external and local content written in swift 4.0.
 
 supported iOS Version +8.0
 
@@ -80,6 +80,7 @@ Current Swift compatibility breakdown:
 
 | Swift Version | Framework Version |
 | ------------- | ----------------- |
+| 4.0            | 3.0              |
 | 3.0	        | swift3          	|
 | 2.3	        | 1.2          		|
 

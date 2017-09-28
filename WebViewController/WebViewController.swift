@@ -105,9 +105,7 @@ open class WebViewController: UIViewController {
     deinit {
         webView.scrollView.delegate = nil
         webView.navigationDelegate = nil
-        
-        webView.removeObserver(self, forKeyPath: "estimatedProgress")
-        webView.removeObserver(self, forKeyPath: "title")
+        webViewObserver.forEach({ $0.invalidate() })
     }
         
     override open func viewWillAppear(_ animated: Bool) {
@@ -140,7 +138,7 @@ open class WebViewController: UIViewController {
 
     /// private vars
     fileprivate var webView: WKWebView!
-    fileprivate var webContext: UnsafeMutablePointer<Int>? = nil
+    fileprivate var webViewObserver: [NSKeyValueObservation] = []
     fileprivate var customTitle: String?
     fileprivate var contentType: ContentType
     fileprivate var closeHandler: ((_ controller: WebViewController) -> Void)?
@@ -155,46 +153,6 @@ open class WebViewController: UIViewController {
     fileprivate var hiddenToolBarRestoreButton: UIButton?
     fileprivate var cssScript: WKUserScript?
     
-    // MARK: - Observer
-    
-    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        
-        if context == &webContext && keyPath == "estimatedProgress" {
-            if let newValue = change?[NSKeyValueChangeKey.newKey] as? Float {
-                
-                if let progressView = self.progressView {
-                    progressView.progress = newValue
-                    if !progressView.isHidden && (newValue >= 1.0 || newValue <= 0.0) {
-                        hideProgressViewAnimated(progressView)
-                        if let toolBar = self.toolBar {
-                            // adjust scrollview inset if loading is finished
-                            let inset = webView.scrollView.scrollIndicatorInsets
-                            webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
-                            webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
-                        }
-                    } else if progressView.isHidden {
-                        showProgressViewAnimated(progressView)
-                    }
-                }
-                
-                if let barReloadButton = barReloadButton {
-                    barReloadButton.isEnabled = (newValue >= 0.9)
-                }
-            }
-        }
-        else if context == &webContext && keyPath == "title" {
-            if customTitle == nil {
-                if let newValue = change?[NSKeyValueChangeKey.newKey] as? String {
-                    setTitle(newValue)
-                }
-            }
-        }
-        else {
-            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-        }
-        
-    }
-
 }
 
 // MARK: - INIT UI
@@ -272,8 +230,31 @@ private extension WebViewController {
         webViewController.view.addConstraint(bottomWeb)
         
         // observer & delegates
-        webView.addObserver(self, forKeyPath: "estimatedProgress", options: [NSKeyValueObservingOptions.new, NSKeyValueObservingOptions.initial], context: &webContext)
-        webView.addObserver(self, forKeyPath: "title", options: [NSKeyValueObservingOptions.new, NSKeyValueObservingOptions.initial], context: &webContext)
+        let progressObserver = webView.observe(\WKWebView.estimatedProgress, options: [.new]) { (wkWebView, change) in
+            guard let newValue = change.newValue, let progressView = self.progressView else { return }
+            
+            progressView.progress = Float(newValue)
+            if !progressView.isHidden && (newValue >= 1.0 || newValue <= 0.0) {
+                self.hideProgressViewAnimated(progressView)
+                if let toolBar = self.toolBar {
+                    // adjust scrollview inset if loading is finished
+                    let inset = self.webView.scrollView.scrollIndicatorInsets
+                    self.webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+                    self.webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+                }
+            } else if progressView.isHidden {
+                self.showProgressViewAnimated(progressView)
+            }
+        }
+        
+        let titleObserver = webView.observe(\WKWebView.title, options: [.new]) { (wkWebView, change) in
+            guard let newValue = change.newValue, self.customTitle == nil else { return }
+            
+            self.setTitle(newValue)
+        }
+        
+        webViewObserver.append(contentsOf: [progressObserver, titleObserver])
+        
         webView.uiDelegate = self
         webView.navigationDelegate = self
         webView.scrollView.delegate = self
@@ -408,29 +389,29 @@ private extension WebViewController {
 // MARK: - Actions
 extension WebViewController {
     
-    func webViewDoneButtonPressed() {
+    @objc func webViewDoneButtonPressed() {
         if let handler = self.closeHandler {
             handler(self)
         }
     }
     
-    func reloadAction(_ sender: UIBarButtonItem) {
+    @objc func reloadAction(_ sender: UIBarButtonItem) {
         webView.reloadFromOrigin()
     }
     
-    func historyBackAction(_ sender: UIBarButtonItem) {
+    @objc func historyBackAction(_ sender: UIBarButtonItem) {
         if webView.canGoBack {
             webView.goBack()
         }
     }
     
-    func historyForwardAction(_ sender: UIBarButtonItem) {
+    @objc func historyForwardAction(_ sender: UIBarButtonItem) {
         if webView.canGoForward {
             webView.goForward()
         }
     }
     
-    func hiddenToolBarRestoreButtonTouchUpInside(_ sender: UIButton) {
+    @objc func hiddenToolBarRestoreButtonTouchUpInside(_ sender: UIButton) {
         showToolBarAnimated()
     }
 
@@ -547,7 +528,7 @@ extension WebViewController: UIScrollViewDelegate {
 private extension WebViewController {
     
     func hideProgressViewAnimated(_ view :UIView) {
-        UIView.animate(withDuration: 0.25, animations: { _ in
+        UIView.animate(withDuration: 0.25, animations: { 
             view.alpha = 0.0
             }, completion: { complete in
             view.isHidden = true
@@ -556,7 +537,7 @@ private extension WebViewController {
     }
     
     func showProgressViewAnimated(_ view :UIView) {
-        UIView.animate(withDuration: 0.25, animations: { _ in
+        UIView.animate(withDuration: 0.25, animations: { 
             view.alpha = 1.0
             }, completion: { complete in
                 view.isHidden = false
