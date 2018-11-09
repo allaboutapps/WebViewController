@@ -48,7 +48,7 @@ open class WebViewController: UIViewController {
     open var loadedHTMLLinksHandler: ((_ url: URL) -> Void)?
     
     /// change the contentMode of the WebView
-    open var contentMode: UIViewContentMode? {
+    open var contentMode: UIView.ContentMode? {
         didSet {
             guard let contentMode = contentMode, let webView = self.webView else {
                 return
@@ -166,9 +166,9 @@ private extension WebViewController {
         webViewController = UIViewController(nibName: nil, bundle: nil)
         if let navigationController = self.navigationController {
             // will show in navigation controller
-            webViewController.willMove(toParentViewController: self)
-            addChildViewController(webViewController)
-            webViewController.didMove(toParentViewController: self)
+            webViewController.willMove(toParent: self)
+            addChild(webViewController)
+            webViewController.didMove(toParent: self)
             view.addSubview(webViewController.view)
             if let tintColor = self.tintColor {
                 navigationController.navigationBar.tintColor = tintColor
@@ -178,9 +178,9 @@ private extension WebViewController {
             // will present modal, add navigation controller for navigation bar
             let navigationController = UINavigationController(rootViewController: webViewController)
             webViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(WebViewController.webViewDoneButtonPressed))
-            navigationController.willMove(toParentViewController: self)
-            addChildViewController(navigationController)
-            navigationController.didMove(toParentViewController: self)
+            navigationController.willMove(toParent: self)
+            addChild(navigationController)
+            navigationController.didMove(toParent: self)
             view.addSubview(navigationController.view)
             self.modalNavigationController = navigationController
             self.webViewNaviationController = self.modalNavigationController
@@ -239,8 +239,8 @@ private extension WebViewController {
                 if let toolBar = self.toolBar {
                     // adjust scrollview inset if loading is finished
                     let inset = self.webView.scrollView.scrollIndicatorInsets
-                    self.webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
-                    self.webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+                    self.webView.scrollView.scrollIndicatorInsets = UIEdgeInsets.init(top: inset.top, left: inset.left, bottom: toolBar.bounds.height, right: inset.right)
+                    self.webView.scrollView.contentInset = UIEdgeInsets.init(top: inset.top, left: inset.left, bottom: toolBar.bounds.height, right: inset.right)
                 }
             } else if progressView.isHidden {
                 self.showProgressViewAnimated(progressView)
@@ -312,7 +312,7 @@ private extension WebViewController {
     func setupHiddenToolBarRestoreButton() {
         let button = UIButton()
         button.addTarget(self, action: #selector(WebViewController.hiddenToolBarRestoreButtonTouchUpInside(_:)), for: .touchUpInside)
-        button.setTitle("", for: UIControlState())
+        button.setTitle("", for: UIControl.State())
         button.setTitle("", for: .disabled)
         button.setTitle("", for: .highlighted)
         button.setTitle("", for: .reserved)
@@ -565,8 +565,8 @@ private extension WebViewController {
                 self.view.layoutIfNeeded()
             }) 
             let inset = webView.scrollView.scrollIndicatorInsets
-            webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
-            webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, toolBar.bounds.height, inset.right)
+            webView.scrollView.scrollIndicatorInsets = UIEdgeInsets.init(top: inset.top, left: inset.left, bottom: toolBar.bounds.height, right: inset.right)
+            webView.scrollView.contentInset = UIEdgeInsets.init(top: inset.top, left: inset.left, bottom: toolBar.bounds.height, right: inset.right)
         }
         if let button = hiddenToolBarRestoreButton {
             button.isEnabled = false
@@ -577,8 +577,8 @@ private extension WebViewController {
         if let toolBar = self.toolBar {
             toolBar.isHidden = true
             let inset = webView.scrollView.scrollIndicatorInsets
-            webView.scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(inset.top, inset.left, 0, inset.right)
-            webView.scrollView.contentInset = UIEdgeInsetsMake(inset.top, inset.left, 0, inset.right)
+            webView.scrollView.scrollIndicatorInsets = UIEdgeInsets.init(top: inset.top, left: inset.left, bottom: 0, right: inset.right)
+            webView.scrollView.contentInset = UIEdgeInsets.init(top: inset.top, left: inset.left, bottom: 0, right: inset.right)
             if let button = hiddenToolBarRestoreButton {
                 button.isEnabled = true
             }
