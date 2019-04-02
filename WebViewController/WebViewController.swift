@@ -219,10 +219,10 @@ private extension WebViewController {
         webView.scrollView.maximumZoomScale = 1.0
         webView.scrollView.minimumZoomScale = 1.0
         
-        let leftWeb = NSLayoutConstraint(item: webView, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
-        let rightWeb = NSLayoutConstraint(item: webView, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
-        let topWeb = NSLayoutConstraint(item: webView, attribute: .top, relatedBy: .equal, toItem: webViewController.topLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
-        let bottomWeb = NSLayoutConstraint(item: webView, attribute: .bottom, relatedBy: .equal, toItem: webViewController.bottomLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: 0.0)
+        let leftWeb = NSLayoutConstraint(item: webView!, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
+        let rightWeb = NSLayoutConstraint(item: webView!, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
+        let topWeb = NSLayoutConstraint(item: webView!, attribute: .top, relatedBy: .equal, toItem: webViewController.topLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
+        let bottomWeb = NSLayoutConstraint(item: webView!, attribute: .bottom, relatedBy: .equal, toItem: webViewController.bottomLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: 0.0)
         
         webViewController.view.addConstraint(leftWeb)
         webViewController.view.addConstraint(rightWeb)
