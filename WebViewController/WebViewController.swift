@@ -221,8 +221,8 @@ private extension WebViewController {
         
         let leftWeb = NSLayoutConstraint(item: webView!, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
         let rightWeb = NSLayoutConstraint(item: webView!, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
-        let topWeb = NSLayoutConstraint(item: webView!, attribute: .top, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide.topAnchor, attribute: .top, multiplier: 1.0, constant: 0.0)
-        let bottomWeb = NSLayoutConstraint(item: webView!, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide.bottomAnchor, attribute: .bottom, multiplier: 1.0, constant: 0.0)
+        let topWeb = NSLayoutConstraint(item: webView!, attribute: .top, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
+        let bottomWeb = NSLayoutConstraint(item: webView!, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: 0.0)
         
         webViewController.view.addConstraint(leftWeb)
         webViewController.view.addConstraint(rightWeb)
@@ -271,7 +271,7 @@ private extension WebViewController {
         
         let left = NSLayoutConstraint(item: progressView, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
         let right = NSLayoutConstraint(item: progressView, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
-        let vConstraint = NSLayoutConstraint(item: progressView, attribute: .top, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide.topAnchor, attribute: .bottom, multiplier: 1.0, constant: 0.0)
+        let vConstraint = NSLayoutConstraint(item: progressView, attribute: .top, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: 0.0)
         
         webViewController.view.addConstraint(left)
         webViewController.view.addConstraint(right)
@@ -286,7 +286,7 @@ private extension WebViewController {
         webViewController.view.addSubview(toolBar)
         let tLeft = NSLayoutConstraint(item: toolBar, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
         let tRight = NSLayoutConstraint(item: toolBar, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
-        toolBarBottomConstraint = NSLayoutConstraint(item: toolBar, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide.bottomAnchor, attribute: .top, multiplier: 1.0, constant: 0.0)
+        toolBarBottomConstraint = NSLayoutConstraint(item: toolBar, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
         webViewController.view.addConstraint(tLeft)
         webViewController.view.addConstraint(tRight)
         webViewController.view.addConstraint(toolBarBottomConstraint)
@@ -323,7 +323,7 @@ private extension WebViewController {
         webViewController.view.addSubview(button)
         let left = NSLayoutConstraint(item: button, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
         let right = NSLayoutConstraint(item: button, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
-        let bottom = NSLayoutConstraint(item: button, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide.bottomAnchor, attribute: .top, multiplier: 1.0, constant: 0.0)
+        let bottom = NSLayoutConstraint(item: button, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
         let height = NSLayoutConstraint(item: button, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 20.0)
         webViewController.view.addConstraint(left)
         webViewController.view.addConstraint(right)
