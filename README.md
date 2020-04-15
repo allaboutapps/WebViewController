@@ -70,7 +70,7 @@ For more information about ATS go to:
 To integrate WebViewController into your Xcode project using Carthage, specify it in your ```Cartfile```
 
 ```
-git "ssh://git@bitbucket-prod.allaboutapps.at:2222/aaaios/webviewcontroller.git"
+github "allaboutapps/DataSource", ~> 4.1
 ```
 This framework has to build with xcode8+
 
@@ -80,10 +80,11 @@ Current Swift compatibility breakdown:
 
 | Swift Version | Framework Version |
 | ------------- | ----------------- |
-| 5.0            | 3.1              |
-| 4.0            | 3.0              |
-| 3.0	        | swift3          	|
-| 2.3	        | 1.2          		|
+| 5.2           | 4.1               |
+| 5.0           | 3.1               |
+| 4.0           | 3.0               |
+| 3.0	          | swift3          	|
+| 2.3	          | 1.2          		  |
 
 ## Tests
 
