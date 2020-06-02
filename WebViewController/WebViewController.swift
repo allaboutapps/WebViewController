@@ -93,7 +93,7 @@ open class WebViewController: UIViewController {
         switch contentType {
         case .externalURL:
             showLoadingProgress = true
-            showToolBar = true
+            showToolBar = false
             break
         default:
             showLoadingProgress = false
@@ -219,13 +219,13 @@ private extension WebViewController {
         webView.scrollView.maximumZoomScale = 1.0
         webView.scrollView.minimumZoomScale = 1.0
         
-        let leftWeb = NSLayoutConstraint(item: webView!, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
-        let rightWeb = NSLayoutConstraint(item: webView!, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
-        let topWeb = NSLayoutConstraint(item: webView!, attribute: .top, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
-        let bottomWeb = NSLayoutConstraint(item: webView!, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: 0.0)
+        let leadingWeb = NSLayoutConstraint(item: webView!, attribute: .leading, relatedBy: .equal, toItem: webViewController.view, attribute: .leading, multiplier: 1.0, constant: 0.0)
+        let trailingWeb = NSLayoutConstraint(item: webView!, attribute: .trailing, relatedBy: .equal, toItem: webViewController.view, attribute: .trailing, multiplier: 1.0, constant: 0.0)
+        let topWeb = NSLayoutConstraint(item: webView!, attribute: .top, relatedBy: .equal, toItem: webViewController.view, attribute: .top, multiplier: 1.0, constant: 0.0)
+        let bottomWeb = NSLayoutConstraint(item: webView!, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view, attribute: .bottom, multiplier: 1.0, constant: 0.0)
         
-        webViewController.view.addConstraint(leftWeb)
-        webViewController.view.addConstraint(rightWeb)
+        webViewController.view.addConstraint(leadingWeb)
+        webViewController.view.addConstraint(trailingWeb)
         webViewController.view.addConstraint(topWeb)
         webViewController.view.addConstraint(bottomWeb)
         
@@ -239,8 +239,9 @@ private extension WebViewController {
                 if let toolBar = self.toolBar {
                     // adjust scrollview inset if loading is finished
                     let inset = self.webView.scrollView.scrollIndicatorInsets
-                    self.webView.scrollView.scrollIndicatorInsets = UIEdgeInsets.init(top: inset.top, left: inset.left, bottom: toolBar.bounds.height, right: inset.right)
-                    self.webView.scrollView.contentInset = UIEdgeInsets.init(top: inset.top, left: inset.left, bottom: toolBar.bounds.height, right: inset.right)
+                    let newInsets = UIEdgeInsets.init(top: inset.top + toolBar.bounds.height, left: inset.left, bottom: inset.bottom, right: inset.right)
+                    self.webView.scrollView.scrollIndicatorInsets = newInsets
+                    self.webView.scrollView.contentInset = newInsets
                 }
             } else if progressView.isHidden {
                 self.showProgressViewAnimated(progressView)
@@ -269,12 +270,12 @@ private extension WebViewController {
         }
         webViewController.view.addSubview(progressView)
         
-        let left = NSLayoutConstraint(item: progressView, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
-        let right = NSLayoutConstraint(item: progressView, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
-        let vConstraint = NSLayoutConstraint(item: progressView, attribute: .top, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: 0.0)
+        let leading = NSLayoutConstraint(item: progressView, attribute: .leading, relatedBy: .equal, toItem: webViewController.view, attribute: .leading, multiplier: 1.0, constant: 0.0)
+        let trailing = NSLayoutConstraint(item: progressView, attribute: .trailing, relatedBy: .equal, toItem: webViewController.view, attribute: .trailing, multiplier: 1.0, constant: 0.0)
+        let vConstraint = NSLayoutConstraint(item: progressView, attribute: .top, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
         
-        webViewController.view.addConstraint(left)
-        webViewController.view.addConstraint(right)
+        webViewController.view.addConstraint(leading)
+        webViewController.view.addConstraint(trailing)
         webViewController.view.addConstraint(vConstraint)
         self.progressView = progressView
     }
@@ -284,8 +285,8 @@ private extension WebViewController {
         toolBar.translatesAutoresizingMaskIntoConstraints = false
         toolBar.isHidden = !showToolBar
         webViewController.view.addSubview(toolBar)
-        let tLeft = NSLayoutConstraint(item: toolBar, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
-        let tRight = NSLayoutConstraint(item: toolBar, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
+        let tLeft = NSLayoutConstraint(item: toolBar, attribute: .leading, relatedBy: .equal, toItem: webViewController.view, attribute: .leading, multiplier: 1.0, constant: 0.0)
+        let tRight = NSLayoutConstraint(item: toolBar, attribute: .trailing, relatedBy: .equal, toItem: webViewController.view, attribute: .trailing, multiplier: 1.0, constant: 0.0)
         toolBarBottomConstraint = NSLayoutConstraint(item: toolBar, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
         webViewController.view.addConstraint(tLeft)
         webViewController.view.addConstraint(tRight)
@@ -321,12 +322,12 @@ private extension WebViewController {
         button.backgroundColor = UIColor.clear
         button.translatesAutoresizingMaskIntoConstraints = false
         webViewController.view.addSubview(button)
-        let left = NSLayoutConstraint(item: button, attribute: .left, relatedBy: .equal, toItem: webViewController.view, attribute: .left, multiplier: 1.0, constant: 0.0)
-        let right = NSLayoutConstraint(item: button, attribute: .right, relatedBy: .equal, toItem: webViewController.view, attribute: .right, multiplier: 1.0, constant: 0.0)
+        let leading = NSLayoutConstraint(item: button, attribute: .leading, relatedBy: .equal, toItem: webViewController.view, attribute: .leading, multiplier: 1.0, constant: 0.0)
+        let trailing = NSLayoutConstraint(item: button, attribute: .trailing, relatedBy: .equal, toItem: webViewController.view, attribute: .trailing, multiplier: 1.0, constant: 0.0)
         let bottom = NSLayoutConstraint(item: button, attribute: .bottom, relatedBy: .equal, toItem: webViewController.view.safeAreaLayoutGuide, attribute: .top, multiplier: 1.0, constant: 0.0)
         let height = NSLayoutConstraint(item: button, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 20.0)
-        webViewController.view.addConstraint(left)
-        webViewController.view.addConstraint(right)
+        webViewController.view.addConstraint(leading)
+        webViewController.view.addConstraint(trailing)
         webViewController.view.addConstraint(bottom)
         webViewController.view.addConstraint(height)
         button.isEnabled = false
